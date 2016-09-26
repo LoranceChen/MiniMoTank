@@ -1,0 +1,14 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Script\Enemy\MoveController.cs">
+    <Files>
+      <File FileName="..\_ceshi2D\Assets\NewBehaviourScript.cs" Line="8" Column="10" />
+      <File FileName="Assets\Script\Enemy\MoveController.cs" Line="228" Column="4" />
+      <File FileName="Assets\Script\Enemy\EnemyBulletController.cs" Line="13" Column="3" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>

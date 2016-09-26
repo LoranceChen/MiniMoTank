@@ -1,0 +1,15 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="..\unity4.x\Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js">
+    <Files>
+      <File FileName="Assets\Script\GameController\GameController.cs" Line="1" Column="1" />
+      <File FileName="Assets\Script\Enemy\MoveController.cs" Line="92" Column="12" />
+      <File FileName="..\unity4.x\Assets\Standard Assets\Scripts\General Scripts\ActivateTrigger.cs" Line="36" Column="23" />
+      <File FileName="..\unity4.x\Assets\Standard Assets\Scripts\Camera Scripts\MouseOrbit.js" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
