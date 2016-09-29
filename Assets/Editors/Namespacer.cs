@@ -14,7 +14,7 @@ public class Namespacer : EditorWindow
 
 	// Add menu item named "My Window" to the Window menu
 	//% - cmd(ctrl on windows); # - shift
-	[MenuItem("Window/My Window %#e")]
+	[MenuItem("Window/GenSpacer %#e")]
 	public static void ShowWindow()
 	{
 		//Show existing window instance. If one doesn't exist, make one.
@@ -44,23 +44,26 @@ public class Namespacer : EditorWindow
 
 						var nameSpace = parseNameSpace (assetPath);
 						if (nameSpace != null) {
-							//1. read template form "Editors/mkScript.tpl"
-							string templete = System.IO.File.ReadAllText (Application.dataPath + "/Editors/mkScript.tpl");
-							//2. replace #namespace#
-							string newTemplete = templete.Replace ("#namespace#", nameSpace).Replace ("#csName#", csName); //todo refine
-							EditorDebug ("newTemplete content - " + newTemplete);
-							//3. write data into new file at assetPath + "/csName.cs"
-							//3.1 ensure file not exist
-							var aimPath = Application.dataPath + "/../" + assetPath + "/" + csName + ".cs";
-							if (File.Exists (aimPath)) {
-								setGUITips ("file has exist", MessageType.Warning);
-							} else {
-								using (StreamWriter outputFile = new StreamWriter (aimPath)) {
-									outputFile.WriteLine (newTemplete);
-									setGUITips ("success", MessageType.Info);
-								}
-								AssetDatabase.Refresh ();
+							if (nameSpace == "") {//ignore namespace when result empty string
+								setGUITips("NOT support non-namespace yet", MessageType.Warning);
+							} else {//1. read template form "Editors/mkScript.tpl"
+								string templete = System.IO.File.ReadAllText (Application.dataPath + "/Editors/mkScript.tpl");
+								//2. replace #namespace#
+								string newTemplete = templete.Replace ("#namespace#", nameSpace).Replace ("#csName#", csName); //todo refine
+								EditorDebug ("newTemplete content - " + newTemplete);
+								//3. write data into new file at assetPath + "/csName.cs"
+								//3.1 ensure file not exist
+								var aimPath = Application.dataPath + "/../" + assetPath + "/" + csName + ".cs";
+								if (File.Exists (aimPath)) {
+									setGUITips ("file has exist", MessageType.Warning);
+								} else {
+									using (StreamWriter outputFile = new StreamWriter (aimPath)) {
+										outputFile.WriteLine (newTemplete);
+										setGUITips ("success", MessageType.Info);
+									}
+									AssetDatabase.Refresh ();
 		
+								}
 							}
 						}
 					}
@@ -69,6 +72,15 @@ public class Namespacer : EditorWindow
 		}
 	}
 
+	/// <summary>
+	/// Parses the name space.
+	/// </summary>
+	/// <returns>The name space.
+	/// 	1. null - parse error
+	/// 	2. "" - Match .*/Scripts
+	/// 	3. others - name.space with dot splited normally
+	/// </returns>
+	/// <param name="assetPath">Asset path.</param>
 	string parseNameSpace(string assetPath) {
 		var regex = new Regex (@".*Scripts/(?:([a-z|A-Z|_]*)/)*([a-z|A-Z|_]*)$|.*Scripts");
 		var match = regex.Match (assetPath);
@@ -95,6 +107,8 @@ public class Namespacer : EditorWindow
 					}
 				}
 			}
+			if (spaceName == null)
+				spaceName = "";
 		}
 
 		EditorDebug ("spaceName - " + spaceName);
