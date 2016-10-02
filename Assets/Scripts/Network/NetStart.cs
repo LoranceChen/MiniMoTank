@@ -7,7 +7,11 @@ using UniRx;
 using Lorance.RxScoket;
 using Lorance.Util;
 using System.Threading;
+using RSG;
 
+/// <summary>
+/// gameobject handle network
+/// </summary>
 public class NetStart : MonoBehaviour {
 	ClientEntrance client;
 	IObservable<ConnectedSocket> socket;
@@ -47,21 +51,20 @@ public class NetStart : MonoBehaviour {
 		});
 	}
 
-	Future<Boolean> Login(string account, string pwd) {
-		var login = new Login (account, pwd);
+	IPromise<Boolean> Login(string account, string pwd) {
+		var login = new Tuple<String, String> (account, pwd);
 		var json = JsonUtility.ToJson (login);
-//		socket
-		return new Future<Boolean>(true);
+		return new Promise<Boolean>(true);
 	}
 
 //	JsonUtility(json, myObject);
 }
 
-class Login {
-	public string account;
-	public string pwd;
-	public Login (string account, string pwd) {
-		this.account = account;
-		this.pwd = pwd;
-	}
-}
+//class Login {
+//	public string account;
+//	public string pwd;
+//	public Login (string account, string pwd) {
+//		this.account = account;
+//		this.pwd = pwd;
+//	}
+//}

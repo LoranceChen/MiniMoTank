@@ -169,11 +169,13 @@ namespace RSG
 		/// <summary>
 		/// Error handler.
 		/// </summary>
+		private Object rejectHandlersLock = new Object();
 		private List<RejectHandler> rejectHandlers;
 
 		/// <summary>
 		/// Completed handlers that accept a value.
 		/// </summary>
+		private Object resolveLock = new Object();
 		private List<Action<PromisedT>> resolveCallbacks;
 		private List<IRejectable> resolveRejectables;
 
@@ -234,12 +236,14 @@ namespace RSG
 		/// </summary>
 		private void AddRejectHandler(Action<Exception> onRejected, IRejectable rejectable)
 		{
-			if (rejectHandlers == null)
-			{
-				rejectHandlers = new List<RejectHandler>();
-			}
+			lock(rejectHandlersLock) {
+				if (rejectHandlers == null)
+				{
+					rejectHandlers = new List<RejectHandler>();
+				}
 
-			rejectHandlers.Add(new RejectHandler() { callback = onRejected, rejectable = rejectable }); ;
+				rejectHandlers.Add(new RejectHandler() { callback = onRejected, rejectable = rejectable }); ;
+			}
 		}
 
 		/// <summary>
@@ -247,18 +251,20 @@ namespace RSG
 		/// </summary>
 		private void AddResolveHandler(Action<PromisedT> onResolved, IRejectable rejectable)
 		{
-			if (resolveCallbacks == null)
-			{
-				resolveCallbacks = new List<Action<PromisedT>>();
-			}
+			lock(resolveLock) {
+				if (resolveCallbacks == null)
+				{
+					resolveCallbacks = new List<Action<PromisedT>>();
+				}
 
-			if (resolveRejectables == null)
-			{
-				resolveRejectables = new List<IRejectable>();
-			}
+				if (resolveRejectables == null)
+				{
+					resolveRejectables = new List<IRejectable>();
+				}
 
-			resolveCallbacks.Add(onResolved);
-			resolveRejectables.Add(rejectable);
+				resolveCallbacks.Add(onResolved);
+				resolveRejectables.Add(rejectable);
+			}
 		}
 
 		/// <summary>
@@ -284,9 +290,13 @@ namespace RSG
 		/// </summary>
 		private void ClearHandlers()
 		{
-			rejectHandlers = null;
-			resolveCallbacks = null;
-			resolveRejectables = null;
+			lock (rejectHandlersLock) {
+				rejectHandlers = null;
+			}
+			lock(resolveLock) {
+				resolveCallbacks = null;
+				resolveRejectables = null;
+			}
 		}
 
 		/// <summary>
@@ -295,12 +305,12 @@ namespace RSG
 		private void InvokeRejectHandlers(Exception ex)
 		{
 //            Argument.NotNull(() => ex);
+			lock (rejectHandlersLock) {	
+				if (rejectHandlers != null) {
+					rejectHandlers.Each (handler => InvokeHandler (handler.callback, handler.rejectable, ex));
+				}
 
-			if (rejectHandlers != null)
-			{
-				rejectHandlers.Each(handler => InvokeHandler(handler.callback, handler.rejectable, ex));
 			}
-
 			ClearHandlers();
 		}
 
@@ -308,15 +318,17 @@ namespace RSG
 		/// Invoke all resolve handlers.
 		/// </summary>
 		private void InvokeResolveHandlers(PromisedT value)
-		{
-			if (resolveCallbacks != null)
-			{
-				for (int i = 0, maxI = resolveCallbacks.Count; i < maxI; i++) {
-					InvokeHandler(resolveCallbacks[i], resolveRejectables[i], value);
+		{		
+			lock(resolveLock) {
+				if (resolveCallbacks != null)
+				{
+					for (int i = 0, maxI = resolveCallbacks.Count; i < maxI; i++) {
+						InvokeHandler (resolveCallbacks [i], resolveRejectables [i], value);
+					}
 				}
-			}
 
-			ClearHandlers();
+				ClearHandlers();
+			}
 		}
 
 		/// <summary>

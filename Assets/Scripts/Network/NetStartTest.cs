@@ -46,22 +46,4 @@ public class NetStartTest : MonoBehaviour {
 			x.send(new ByteBuffer(Common.readyData((byte)1, "hi server ~")));
 		});
 	}
-
-	Future<Boolean> Login(string account, string pwd) {
-		var login = new Login (account, pwd);
-		var json = JsonUtility.ToJson (login);
-//		socket
-		return new Future<Boolean>(true);
-	}
-
-//	JsonUtility(json, myObject);
 }
-
-//class Login {
-//	public string account;
-//	public string pwd;
-//	public Login (string account, string pwd) {
-//		this.account = account;
-//		this.pwd = pwd;
-//	}
-//}

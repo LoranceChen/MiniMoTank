@@ -468,6 +468,7 @@ namespace UniRx
 
         void Awake()
         {
+//			Debug.Log ("do...Awake");
             if (instance == null)
             {
                 instance = this;
@@ -511,6 +512,7 @@ namespace UniRx
         {
             while (true)
             {
+//				Debug.Log ("do...RunUpdateMicroCoroutine");
                 yield return null;
                 updateMicroCoroutine.Run();
             }

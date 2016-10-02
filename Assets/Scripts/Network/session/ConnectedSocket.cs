@@ -8,6 +8,9 @@ using Lorance.Util;
 using System.Threading;
 
 namespace Lorance.RxScoket.Session {
+	/// <summary>
+	/// Warpped socket stream by CompletedProto data
+	/// </summary>
 	public class ConnectedSocket {
 		private Socket socket;
 		private Subject<CompletedProto> completedProtosSubj = new Subject<CompletedProto>();
@@ -17,6 +20,11 @@ namespace Lorance.RxScoket.Session {
 		public ConnectedSocket (Socket socket) {
 			this.socket = socket;
 			readAttach = new Attachment (new ByteBuffer(new byte[Configration.READBUFFER_LIMIT]), socket);
+		}
+			
+		public void Disconnect () {
+			socket.Shutdown (SocketShutdown.Both);
+			socket.Disconnect (false); // or .Close()
 		}
 
 		public IObservable<CompletedProto> startReading() {
@@ -73,6 +81,9 @@ namespace Lorance.RxScoket.Session {
 						if (bytesRead > 0) {
 							readAttach.byteBuffer.Position = bytesRead;
 							f.completeWith(() => readAttach);
+						} else {
+							Disconnect();
+							Package.Log("[Socket Disconnected] read error, result - " + bytesRead);
 						}
 					} catch (Exception e) {
 						Package.Log(e.ToString());
