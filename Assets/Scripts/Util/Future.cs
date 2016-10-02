@@ -11,8 +11,8 @@ namespace Lorance.Util {
 	 * simple future warp system async callback
 	 * */
 	public class Future<T> {
-		private Action<T> callBacks;
-//		private HashSet<Action<T>> actionSet = new HashSet<Action<T>>();
+//		private Action<T> callBack;
+		private List<Action<T>> callBacks = new List<Action<T>>();
 		private T value;
 		private ExecutionContext ec;
 
@@ -34,21 +34,22 @@ namespace Lorance.Util {
 		public void onComplete(Action<T> func) {
 			lock (this) {
 				if (this.value == null) {
-//					actionSet.Add (func);
-					callBacks += func;
+					callBacks.Add(func);
 				}
 				else {
 					func (value);
-
 				}
 			}
 		}
 			
-		public void completeWith (Func<T> value) {
+		public void completeWith (Func<T> func) {
 			lock (this) {
-				this.value = value ();
-				if (callBacks != null)
-					callBacks (this.value);
+				this.value = func ();
+				foreach (Action<T> act in callBacks) {
+					act (this.value);
+				}
+
+				callBacks.Clear ();
 			}
 		}
 
@@ -65,7 +66,7 @@ namespace Lorance.Util {
 		}
 
 		public static Future<T> Apply(T t) {
-			return new Future<T>(() => {return t;});
+			return new Future<T>(t);
 		}
 	}
 }
