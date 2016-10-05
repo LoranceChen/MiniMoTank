@@ -1,8 +1,8 @@
 ﻿using System;
 using System.IO;
-using Lorance.RxScoket.Util;
+using Lorance.Util;
 
-namespace Lorance.RxScoket.Session
+namespace Lorance.RxSocket.Session
 {
 	public abstract class BufferedProto{}
 
@@ -34,6 +34,11 @@ namespace Lorance.RxScoket.Session
 			this.uuid = uuid;
 			this.length = length;
 			this.loaded = loaded;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format ("[CompletedProto] uuid:{0}, length:{1}, loaded{2}", uuid, length, loaded);
 		}
 	}
 }

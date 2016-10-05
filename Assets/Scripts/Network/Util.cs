@@ -4,7 +4,7 @@ using System.Text;
 using System.Net;
 using System;
 
-namespace Lorance.RxScoket {
+namespace Lorance.RxSocket {
 	public class Common {
 		//only use the method if src form system type such as system int, float, double.
 		public static byte[] ToBigEnd(byte[] src) {

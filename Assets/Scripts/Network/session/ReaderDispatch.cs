@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using Lorance.RxScoket.Util;
-using Lorance.RxScoket;
+using Lorance.Util;
+using Lorance.RxSocket;
 
-namespace Lorance.RxScoket.Session{
+namespace Lorance.RxSocket.Session{
 	class TmpBufferOverLoadException : RuntimeException{
 		public TmpBufferOverLoadException(string message)
 			: base(message)
@@ -16,8 +16,8 @@ namespace Lorance.RxScoket.Session{
 	public class ReaderDispatch {
 		private int maxLength;
 		private PaddingProto tmpProto;
-		private static None<byte> NoneByte = new None<byte> ();
-		private static None<CompletedProto> NoneProto = new None<CompletedProto> ();
+		private static None<byte> NoneByte = None<byte>.Apply;
+		private static None<CompletedProto> NoneProto = None<CompletedProto>.Apply;
 		public ReaderDispatch(PaddingProto tmpProto, int maxLength) {
 			this.tmpProto = tmpProto;
 			this.maxLength = maxLength;
@@ -28,13 +28,13 @@ namespace Lorance.RxScoket.Session{
 		}
 
 		public ReaderDispatch(){
-			this.tmpProto = new PaddingProto (new None<byte>(), new None<BufferedLength>(), new ByteBuffer(new byte[0]));
+			this.tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer(new byte[0]));
 			maxLength = Configration.TEMPBUFFER_LIMIT;
 		}
 
 		public Option<Queue<CompletedProto>> receive(ByteBuffer src){
 			src.Flip ();
-			Option<Queue<CompletedProto>> rst = receiveHelper (src, new None<Queue<CompletedProto>>());
+			Option<Queue<CompletedProto>> rst = receiveHelper (src, None<Queue<CompletedProto>>.Apply);
 			src.Clear ();
 			return rst;
 		}
@@ -42,9 +42,9 @@ namespace Lorance.RxScoket.Session{
 		private Option<Queue<CompletedProto>> receiveHelper(ByteBuffer src, Option<Queue<CompletedProto>> completes) {
 			if (tmpProto.uuidOpt is None<byte>) {
 				Option<byte> uuidOpt = tryGetByte (src);
-				tmpProto = new PaddingProto (uuidOpt, new None<BufferedLength> (), null);
+				tmpProto = new PaddingProto (uuidOpt, None<BufferedLength>.Apply, null);
 				Option<BufferedLength> lengthOpt = uuidOpt.FlatMap<BufferedLength> ((byte uuid) => {
-					return TryGetLength (src, new None<BufferedLength> ());
+					return TryGetLength (src, None<BufferedLength>.Apply);
 				});
 
 //				Option<CompletedProto> protoOpt = Option<CompletedProto>.Empty;
@@ -57,9 +57,9 @@ namespace Lorance.RxScoket.Session{
 						} else if (src.Remaining () < length) {
 							var newBf = new ByteBuffer (length);
 							tmpProto = new PaddingProto (uuidOpt, lengthOpt, newBf.Put (src));
-							return new None<CompletedProto>();
+							return None<CompletedProto>.Apply;
 						} else {
-							tmpProto = new PaddingProto (new None<byte>(), new None<BufferedLength>(), new ByteBuffer (0));
+							tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer (0));
 							var newAf = new byte[length];
 							src.Get (newAf, 0, length);
 							var completed = new CompletedProto (uuidOpt.Get (), length, new ByteBuffer (newAf));
@@ -70,7 +70,7 @@ namespace Lorance.RxScoket.Session{
 //						byte[] arrived = lengthPending.arrived;
 //						int number = lengthPending.arrivedNumber;
 						tmpProto = new PaddingProto (uuidOpt, lengthOpt, new ByteBuffer (0));
-						return new None<CompletedProto>();
+						return None<CompletedProto>.Apply;
 					}
 				});
 
@@ -91,7 +91,7 @@ namespace Lorance.RxScoket.Session{
 				}
 			} else if (!tmpProto.uuidOpt.IsEmpty () && tmpProto.lengthOpt.IsEmpty ()) {
 				var uuid = tmpProto.uuidOpt.Get ();
-				var lengthOpt = TryGetLength (src, new None<BufferedLength> ());
+				var lengthOpt = TryGetLength (src, None<BufferedLength>.Apply);
 				var protoOpt = lengthOpt.FlatMap<CompletedProto> ((lengthValue) => {
 					if (lengthValue.IsCompleted) {
 //						var length = lengthValue.Value ();
@@ -158,7 +158,7 @@ namespace Lorance.RxScoket.Session{
 					tmpProto = new PaddingProto (new Some<byte>(uuid), lengthOpt, padding.Put(src));
 					protoOpt = NoneProto;
 				} else {
-					tmpProto = new PaddingProto (new None<byte> (), new None<BufferedLength> (), new ByteBuffer (0));
+					tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer (0));
 					var needLength = length - padding.Position;
 					var newAf = new byte[needLength];
 					src.Get (newAf, 0, needLength);
@@ -198,7 +198,7 @@ namespace Lorance.RxScoket.Session{
 
 			if (lengthOpt is None<BufferedLength>) {
 				if (remaining < 1)
-					return new None<BufferedLength> ();
+					return None<BufferedLength>.Apply;
 				else if (1 <= remaining && remaining < 4) {
 					byte[] lengthByte = new byte[4];
 					bf.Get (lengthByte, 0, remaining);
@@ -232,7 +232,7 @@ namespace Lorance.RxScoket.Session{
 				tmpProto = new PaddingProto (paddingProto.uuidOpt, paddingProto.lengthOpt, newBf.Put (src));
 				return NoneProto;
 			} else {
-				tmpProto = new PaddingProto (NoneByte, new None<BufferedLength>(), new ByteBuffer(0));
+				tmpProto = new PaddingProto (NoneByte, None<BufferedLength>.Apply, new ByteBuffer(0));
 				var newAf = new byte[length];
 				src.Get (newAf, 0, length);
 				var completed = new CompletedProto (paddingProto.uuidOpt.Get (), length, new ByteBuffer(newAf));

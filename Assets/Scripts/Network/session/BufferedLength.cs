@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-namespace Lorance.RxScoket.Session{
+namespace Lorance.RxSocket.Session{
 	public class BufferedLength{
 		public bool IsCompleted;
 

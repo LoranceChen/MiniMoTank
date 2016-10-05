@@ -1,6 +1,6 @@
 ﻿//using System;
 //
-//namespace Lorance.RxScoket.Util
+//namespace Lorance.RxSocket.Util
 //{
 //	public static class OnjectEx
 //	{

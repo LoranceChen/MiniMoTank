@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
-using Functional;
-//using Lorance;
-namespace Lorance.RxScoket.Util {
+using System;
+namespace Lorance.Util {
 	public abstract class Option<T> {
 		public void Foreach (Action<T> act) {
 			if (!IsEmpty ()) {
@@ -12,20 +11,28 @@ namespace Lorance.RxScoket.Util {
 
 		public Option<R> Map<R>(Func<T, R> func) {
 			if (IsEmpty ())
-				return new None<R> ();
+				return None<R>.Apply;
 			else 
 				return new Some<R>(func (Get()));
 		}
 
 		public Option<R> FlatMap<R>(Func<T, Option<R>> func) {
 			if (IsEmpty ())
-				return new None<R> ();
+				return None<R>.Apply;
 			else 
 				return func (Get());
 		}
 			
 		public abstract bool IsEmpty();
 		public abstract T Get ();
+
+		public static Option<T> Apply(T value) {
+			if (value != null) {
+				return new Some<T> (value);
+			} else {
+				return None<T>.Apply;
+			}
+		}
 	}
 
 //	public static class IOptionEx {
@@ -78,13 +85,14 @@ namespace Lorance.RxScoket.Util {
 	}
 
 	public class None<T> : Option<T> {
-		public None(){}
+		private None(){}
 
 		public override bool IsEmpty() {return true;}
 		public override T Get() {
 			throw new NoSuchElementException ("None.Get()");
 		}
 
+		public static new None<T> Apply = new None<T>();
 //		public void Foreach (Action<T> act) {
 //			if (!IsEmpty ()) {
 //				act (Get());

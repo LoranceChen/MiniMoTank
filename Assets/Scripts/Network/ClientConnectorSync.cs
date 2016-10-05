@@ -4,7 +4,7 @@ using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Lorance.RxScoket;
+using Lorance.RxSocket;
 
 // Just for test
 public class ClientConnectorSync : MonoBehaviour {
@@ -28,8 +28,8 @@ public class ClientConnectorSync : MonoBehaviour {
 			try {
 				sender.Connect(remoteEP);
 
-				print("Socket connected to {0}" +
-					sender.RemoteEndPoint.ToString());
+				print(string.Format("Socket connected to {0}",
+					sender.RemoteEndPoint.ToString()));
 
 				// Encode the data string into a byte array.
 //				byte[] msg = Encoding.UTF8.GetBytes("This is a test<EOF>");

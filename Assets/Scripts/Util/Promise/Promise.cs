@@ -205,6 +205,11 @@ namespace RSG
 			}
 		}
 
+		public Promise(PromisedT value) {
+			this.resolveValue = value;
+			this.CurState = PromiseState.Resolved;
+		}
+
 		public Promise(Action<Action<PromisedT>, Action<Exception>> resolver)
 		{
 			this.CurState = PromiseState.Pending;

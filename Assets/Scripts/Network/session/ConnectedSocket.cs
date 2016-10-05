@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using UniRx;
 using System.IO;
 using System.Text;
-using Lorance.Util;
+using Lorance.RxSocket;
 using System.Threading;
 
-namespace Lorance.RxScoket.Session {
+namespace Lorance.RxSocket.Session {
 	/// <summary>
 	/// Warpped socket stream by CompletedProto data
 	/// </summary>
 	public class ConnectedSocket {
 		private Socket socket;
-		private Subject<CompletedProto> completedProtosSubj = new Subject<CompletedProto>();
+		private ISubject<CompletedProto> completedProtosSubj = new Subject<CompletedProto>();
 		private Attachment readAttach;
 		private ReaderDispatch readerDispatch = new ReaderDispatch();
 		private Semaphore sendDone = new Semaphore(1, 1);
@@ -47,7 +47,7 @@ namespace Lorance.RxScoket.Session {
 
 						// Complete sending the data to the remote device.
 						int bytesSent = skt.EndSend(ar);
-						Package.Log("Sent" + bytesSent + " bytes.", 70);
+						Package.Log("Sent " + bytesSent + " bytes.", 70);
 
 						// Signal that all bytes have been sent.
 						sendDone.Release();
@@ -59,7 +59,6 @@ namespace Lorance.RxScoket.Session {
 
 		private void beginReadLoop() {
 			read(readAttach).onComplete((ach) => {
-				Package.Log("read bytes completed - " + ach);
 				var protosOpt = readerDispatch.receive(ach.byteBuffer);
 				protosOpt.Foreach( (protos) => {
 					foreach(CompletedProto proto in protos) {
@@ -91,6 +90,11 @@ namespace Lorance.RxScoket.Session {
 				},
 				readAttach);
 			return f;
+		}
+
+		public override string ToString ()
+		{
+			return string.Format (socket.LocalEndPoint.ToString() + " -> "+ socket.RemoteEndPoint.ToString());
 		}
 	}
 }

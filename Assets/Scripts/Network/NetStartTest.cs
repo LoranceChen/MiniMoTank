@@ -2,15 +2,18 @@
 using System.Collections;
 using System;
 using System.Text;
-using Lorance.RxScoket.Session;
+using Lorance.RxSocket.Session;
 using UniRx;
-using Lorance.RxScoket;
+using Lorance.RxSocket;
 using Lorance.Util;
 using System.Threading;
+using Lorance.Util.Helper;
+using RSG;
 
 public class NetStartTest : MonoBehaviour {
 	ClientEntrance client;
-	IObservable<ConnectedSocket> socket;
+	IPromise<ConnectedSocket> socket;
+	IObservable<ConnectedSocket> socketObv;
 	IObservable<CompletedProto> readObv;
 
 	void Start() {
@@ -23,8 +26,9 @@ public class NetStartTest : MonoBehaviour {
 	void ConnectToServer (string host, int port) {
 		Package.s_level = 100;
 		client = new ClientEntrance(host, port);
-		socket = client.Connect();
-		readObv = socket.SelectMany ((x) => {
+		socket = Helper.Futr2IPromise(client.Connect());
+		socketObv = Helper.IPomise2Observable (socket);
+		readObv = socketObv.SelectMany ((x) => {
 			return x.startReading();
 		});
 
@@ -41,7 +45,7 @@ public class NetStartTest : MonoBehaviour {
 			transform.LookAt(new Vector3(1f, 0f, 0f));
 		});
 		//test send msg
-		socket.Subscribe ((x) => {
+		socketObv.Subscribe ((x) => {
 			print("connect~");
 			x.send(new ByteBuffer(Common.readyData((byte)1, "hi server ~")));
 		});

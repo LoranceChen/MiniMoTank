@@ -3,7 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Net.Sockets;
 
-namespace Lorance.RxScoket.Session {
+namespace Lorance.RxSocket.Session {
 	public class Attachment {
 		public ByteBuffer byteBuffer;
 		public Socket client;

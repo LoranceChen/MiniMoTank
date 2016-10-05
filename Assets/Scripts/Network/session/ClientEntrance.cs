@@ -3,8 +3,9 @@ using UniRx;
 using System;
 using System.Net;
 using System.Net.Sockets;
+using Lorance.Util;
 
-namespace Lorance.RxScoket.Session {
+namespace Lorance.RxSocket.Session {
 	public class ClientEntrance {
 		private string remoteHost;
 		private int remotePort;
@@ -13,7 +14,7 @@ namespace Lorance.RxScoket.Session {
 			this.remotePort = remotePort;
 		}
 
-		public IObservable<ConnectedSocket> Connect() {
+		public Future<ConnectedSocket> Connect() {
 			IPHostEntry ipHostInfo = Dns.GetHostEntry(remoteHost);
 			IPAddress ipAddress = ipHostInfo.AddressList[0];
 			IPEndPoint remoteEP = new IPEndPoint(ipAddress, remotePort);
@@ -22,24 +23,24 @@ namespace Lorance.RxScoket.Session {
 			Socket client = new Socket(AddressFamily.InterNetwork,
 				SocketType.Stream, ProtocolType.Tcp);
 
-			var connectSub = new ReplaySubject<ConnectedSocket>();
+			var connectFur = new Future<ConnectedSocket> ();
 
 //			IObservable<ConnectedSocket> connectObv = Observable.Create (new Func<IObserver<ConnectedSocket>, IDisposable>())
 			// Connect to the remote endpoint.
 			client.BeginConnect( remoteEP, 
-				new AsyncCallback(ConnectCallback), new ConnectObject(connectSub, client));
+				new AsyncCallback(ConnectCallback), new ConnectObject(connectFur, client));
 
-			return connectSub.AsObservable();
+			return connectFur;
 		}
 
 		private class ConnectObject {
-			public ReplaySubject<ConnectedSocket> connectObv;
+			public Future<ConnectedSocket> connectFur;
 			public Socket client;
 
 			public ConnectObject(
-				ReplaySubject<ConnectedSocket> connectObv,
+				Future<ConnectedSocket> connectFur,
 				Socket client) {
-				this.connectObv = connectObv;
+				this.connectFur = connectFur;
 				this.client = client;
 			}
 		}
@@ -51,10 +52,9 @@ namespace Lorance.RxScoket.Session {
 
 				// Complete the connection.
 				connectObject.client.EndConnect(ar);
-				connectObject.connectObv.OnNext(new ConnectedSocket(connectObject.client));
-				connectObject.connectObv.OnCompleted();
-				Package.Log("Socket connected to {0}" +
-					connectObject.client.RemoteEndPoint.ToString());
+				connectObject.connectFur.completeWith(() => new ConnectedSocket(connectObject.client));
+				Package.Log(string.Format("Socket connected to {0}" +
+					connectObject.client.RemoteEndPoint.ToString()));
 			} catch (Exception e) {
 				Console.Write(e.ToString());
 			}

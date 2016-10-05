@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace Lorance.RxScoket.Session
+namespace Lorance.RxSocket.Session
 {
 	public class ByteBuffer
 	{

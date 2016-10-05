@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Lorance.RxScoket.Session
+namespace Lorance.RxSocket.Session
 {
 	public class SessionCode
 	{
