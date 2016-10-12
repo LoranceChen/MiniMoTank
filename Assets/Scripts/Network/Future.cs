@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Threading;
+using Lorance.Util;
 //using Functional;
 
 namespace Lorance.RxSocket {
@@ -13,7 +14,9 @@ namespace Lorance.RxSocket {
 	public class Future<T> {
 //		private object cbLock = new object(); not support concurrent
 		private List<Action<T>> callBacks = new List<Action<T>>();
+		private List<Action<Exception>> errorCallBacks = new List<Action<Exception>>();
 		private T value;
+		private Exception error;
 
 		public Future() {}
 
@@ -27,24 +30,60 @@ namespace Lorance.RxSocket {
 
 		public void onComplete(Action<T> func) {
 //			lock (cbLock) {
-				if (this.value == null) {
-					callBacks.Add(func);
-				}
-				else {
-					func (value);
-				}
+			onComplete(Some<Action<T>>.Apply(func), None<Action<Exception>>.Apply);
+//
 //			}
 		}
-			
+
+		public void onComplete(Action<Exception> doError) {
+			onComplete(None<Action<T>>.Apply, Some<Action<Exception>>.Apply(doError));
+		}
+
+		public void onComplete(Action<T> func, Action<Exception> doError) {
+			onComplete(Some<Action<T>>.Apply(func), Some<Action<Exception>>.Apply(doError));
+		}
+
+		private void onComplete(Option<Action<T>> func, Option<Action<Exception>> doError) {
+			//			lock (cbLock) {
+			if (this.value == null && this.error == null) {
+				func.Foreach(x => callBacks.Add (x));
+				doError.Foreach(x => errorCallBacks.Add (x));
+			} else if (this.value != null) {
+				func.Foreach(f =>  f(value));
+			} else if (this.error != null) {
+				doError.Foreach(e =>  e(this.error));
+			} else { //this.value != null && this.error != null
+				throw new Exception ("can't achieve");
+			}
+			//			}
+		}
+
 		public void completeWith (Func<T> func) {
 //			lock (cbLock) {
+			if (value == null || error == null) {
 				this.value = func ();
 				foreach (Action<T> act in callBacks) {
 					act (this.value);
 				}
-
+				errorCallBacks.Clear ();
 				callBacks.Clear ();
+			} else {
+				throw new Exception ("Future has completed");
+			}
 //			}
+		}
+
+		public void completeWith (Func<Exception> error) {
+			if (value == null || error == null) {
+				this.error = error ();
+				foreach (Action<Exception> doError in errorCallBacks) {
+					doError (this.error);
+				}
+				errorCallBacks.Clear ();
+				callBacks.Clear ();
+			} else {
+				throw new Exception ("Future has completed");
+			}
 		}
 
 		public Future<U> map<U>(Func<T, U> f) {

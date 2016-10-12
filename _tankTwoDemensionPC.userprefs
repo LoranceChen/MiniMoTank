@@ -1,34 +1,29 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Editors/Namespacer.cs">
     <Files>
-      <File FileName="Assets/LoginCtrl.cs" Line="13" Column="22" />
-      <File FileName="Assets/Scripts/Test/ObservableTest.cs" Line="9" Column="25" />
-      <File FileName="Assets/Scripts/Network/NetStart.cs" Line="115" Column="51" />
-      <File FileName="Assets/Plugins/UniRx/Scripts/Observable.cs" Line="88" Column="9" />
-      <File FileName="Assets/Scripts/Network/session/ConnectedSocket.cs" Line="30" Column="3" />
-      <File FileName="Assets/Scripts/Network/NetStartTest.cs" Line="22" Column="3" />
+      <File FileName="Assets/LoginCtrl.cs" Line="22" Column="14" />
+      <File FileName="Assets/Scripts/Network/NetStart.cs" Line="154" Column="27" />
+      <File FileName="Assets/Scripts/Util/Extension/ConcurrentDictionaryEx.cs" Line="1" Column="1" />
+      <File FileName="Assets/Plugins/Scripts/ConcurrentDictionary.cs" Line="1" Column="1" />
       <File FileName="Assets/Scripts/Network/session/Package.cs" Line="17" Column="1" />
-      <File FileName="Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" Line="446" Column="1" />
-      <File FileName="Assets/Scripts/Util/Promise/SheduleredPromise.cs" Line="158" Column="2" />
-      <File FileName="Assets/Scripts/Util/Helper/Helper.cs" Line="25" Column="44" />
-      <File FileName="Assets/UnityPackages/JsonNetSample/JsonNetSample.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Network/session/ClientEntrance.cs" Line="59" Column="1" />
+      <File FileName="Assets/Scripts/Util/Helper/Helper.cs" Line="13" Column="19" />
+      <File FileName="Assets/Scripts/Network/Future.cs" Line="76" Column="3" />
+      <File FileName="Assets/Scripts/Util/Promise/Promise.cs" Line="289" Column="1" />
+      <File FileName="Assets/Editors/Namespacer.cs" Line="125" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="289" column="1" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="380" column="1" />
-      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="262" column="5" />
-      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="270" column="4" />
-      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="260" column="8" />
-      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="265" column="1" />
-      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="302" column="4" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Util/Promise/Promise.cs" line="330" column="28" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" line="206" column="1" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" line="307" column="32" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" line="604" column="25" />
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Plugins/UniRx/Scripts/UnityEngineBridge/MainThreadDispatcher.cs" line="106" column="35" />
+      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Network/session/Package.cs" line="18" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

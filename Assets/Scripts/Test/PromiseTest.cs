@@ -16,20 +16,20 @@ public class PromiseTest : MonoBehaviour
 
 		//enforce use thread pool
 		for (int i = 0; i < 10000; i++) {
-			promise.ShedulerOn (Scheduler.DefaultSchedulers.AsyncConversions).Then<string> (value => {
+			promise.SchedulerOn (Scheduler.DefaultSchedulers.AsyncConversions).Then<string> (value => {
 				Debug.Log ("111tid: - " + Thread.CurrentThread.ManagedThreadId);
 				return "ThreadId: " + Thread.CurrentThread.ManagedThreadId + " resolved value is - " + value;
 			});
 		}
 
-		var newP = promise.ShedulerOn (Scheduler.ThreadPool).Then<string> (value => {
+		var newP = promise.SchedulerOn (Scheduler.ThreadPool).Then<string> (value => {
 			Debug.Log ("222tid: - " + Thread.CurrentThread.ManagedThreadId);
 			return String.Format("ThreadId - {0} - should on ThreadPool, Resolved value is - {1}", Thread.CurrentThread.ManagedThreadId, value);
 		});
 
 		newP.Done(x => Debug.Log(x));
 
-		var mainTP = newP.ShedulerOn (Scheduler.MainThread).Then<string> (value => {
+		var mainTP = newP.SchedulerOn (Scheduler.MainThread).Then<string> (value => {
 			return String.Format("ThreadId - {0} - should on Main Thread, Resolved value is - {1}", Thread.CurrentThread.ManagedThreadId, value);
 		});
 

@@ -15,18 +15,20 @@ public class LoginCtrl : MonoBehaviour {
 		Login (new LoginReq ("admin", "admin", 1L)).Done (x => 
 			Debug.Log("login result - " + x.ToString())
 		);
-		new System.Threading.Thread (() => {
-			Debug.Log("LoginCtrl: thread id - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
-			var i = 0;
-			while(i < 1) {
-				i += 1;
 
-				Login (new LoginReq ("admin", "admin", 1L)).Done (x => {
-					Debug.Log("login result - " + x.ToString());
-				});
-				System.Threading.Thread.Sleep(4*1000 );
-			}
-		}).Start();
+	
+//		new System.Threading.Thread (() => {
+//			Debug.Log("LoginCtrl: thread id - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
+//			var i = 0;
+//			while(i < 1) {
+//				i += 1;
+//
+//				Login (new LoginReq ("admin", "admin", 1L)).Done (x => {
+//					Debug.Log("login result - " + x.ToString());
+//				});
+//				System.Threading.Thread.Sleep(4*1000 );
+//			}
+//		}).Start();
 
 	}
 

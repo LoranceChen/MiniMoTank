@@ -46,16 +46,19 @@ namespace Lorance.RxSocket.Session {
 		}
 
 		private static void ConnectCallback(IAsyncResult ar) {
-			try {
-				// Retrieve the socket from the state object.
-				ConnectObject connectObject = (ConnectObject) ar.AsyncState;
+			// Retrieve the socket from the state object.
+			ConnectObject connectObject = (ConnectObject) ar.AsyncState;
 
+			try {
 				// Complete the connection.
 				connectObject.client.EndConnect(ar);
 				connectObject.connectFur.completeWith(() => new ConnectedSocket(connectObject.client));
-				Package.Log(string.Format("Socket connected to {0}" +
+				Package.Log(string.Format("Socket connected to {0}",
 					connectObject.client.RemoteEndPoint.ToString()));
 			} catch (Exception e) {
+				connectObject.connectFur.completeWith (() => e);
+				Package.Log(string.Format("Socket connected to - {0} : fail - {1}",
+					connectObject.client.RemoteEndPoint.ToString(), e));
 				Console.Write(e.ToString());
 			}
 		}

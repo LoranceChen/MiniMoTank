@@ -5,7 +5,15 @@ public class ObservableTest : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		Debug.Log ("info - " + default(Package.LogInfo));
+//		TestTimeout ();
+
+		TestMainThreadDispatch ();
+	}
+
+	/// <summary>
+	/// Editor should under focus
+	/// </summary>
+	void TestTimeout() {
 		var subj = new Subject<int> ();
 		new System.Threading.Thread (() => {
 			Debug.Log("thread id - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
@@ -20,6 +28,24 @@ public class ObservableTest : MonoBehaviour {
 
 		var timeout = subj.Timeout (System.TimeSpan.FromSeconds (4));
 		timeout.Spy().Subscribe (x => Debug.Log("x - " + x), ex => Debug.LogError(ex), () => Debug.Log("completed"));
+
 	}
 
+	/// <summary>
+	/// throw exception
+	/// always ObserveOnMainThread under MainThread (invoke at MonoBehaviour lifecycle)
+	/// </summary>
+	void TestMainThreadDispatch() {
+		var subj = new Subject<int> ();
+		new System.Threading.Thread (() => {
+			subj.ObserveOnMainThread().Subscribe(x =>
+				Debug.Log("thread id - " + System.Threading.Thread.CurrentThread.ManagedThreadId)
+			);
+		}).Start();
+
+
+		var timeout = subj.Timeout (System.TimeSpan.FromSeconds (4));
+		timeout.Spy().Subscribe (x => Debug.Log("x - " + x), ex => Debug.LogError(ex), () => Debug.Log("completed"));
+
+	}
 }

@@ -6,6 +6,7 @@ using System.IO;
 
 public class Namespacer : EditorWindow
 {
+	string namespacePrefix = "";
 	string csName = "NewBehaviour";
 	string tips = "";
 	MessageType tipsType = MessageType.Info;
@@ -23,8 +24,10 @@ public class Namespacer : EditorWindow
 		
 	void OnGUI() {
 		GUILayout.Label ("namespacer", EditorStyles.boldLabel);
-		csName = EditorGUILayout.TextField (".cs name", csName);
+		namespacePrefix = EditorGUILayout.TextField ("prefix", namespacePrefix);
 
+		csName = EditorGUILayout.TextField (".cs name", csName);
+		EditorDebug ("is null - " + (namespacePrefix == null));
 		//tips
 		if(tips != "") EditorGUILayout.HelpBox (tips, tipsType);
 
@@ -82,7 +85,7 @@ public class Namespacer : EditorWindow
 	/// </returns>
 	/// <param name="assetPath">Asset path.</param>
 	string parseNameSpace(string assetPath) {
-		var regex = new Regex (@".*Scripts/(?:([a-z|A-Z|_]*)/)*([a-z|A-Z|_]*)$|.*Scripts");
+		var regex = new Regex (@"^.*/Scripts/(?:([a-z|A-Z|_]*)/)*([a-z|A-Z|_]*)$|^.*/Scripts$");
 		var match = regex.Match (assetPath);
 		string spaceName = null;
 
@@ -111,6 +114,15 @@ public class Namespacer : EditorWindow
 				spaceName = "";
 		}
 
+		if (spaceName != null) {
+			if (spaceName != "") {
+				if (namespacePrefix != "" && namespacePrefix != null)
+					spaceName = namespacePrefix + "." + spaceName;
+			} else {
+				if (namespacePrefix != "" && namespacePrefix != null)
+					spaceName = namespacePrefix;
+			}
+		}
 		EditorDebug ("spaceName - " + spaceName);
 	
 		return spaceName;

@@ -8,18 +8,19 @@ namespace Lorance.Util.Helper {
     public static class Helper {
 		public static IPromise<T> Futr2IPromise<T>(Future<T> f) {
 			var iProm = new Promise<T> ();
-			f.onComplete (x => {
-				iProm.Resolve(x);
-			});
+			f.onComplete (
+				x => iProm.Resolve(x),
+				e => iProm.Reject(e)
+			);
 
 			return iProm;
 		}
 
-		public static void Futr2IPromise<T>(Future<T> f, IPendingPromise<T> dst) {
-			f.onComplete (x => {
-				dst.Resolve(x);
-			});
-		}
+//		public static void Futr2IPromise<T>(Future<T> f, IPendingPromise<T> dst) {
+//			f.onComplete (x => {
+//				dst.Resolve(x);
+//			});
+//		}
 
 		public static IObservable<T> IPomise2Observable<T>(IPromise<T> p, bool isCold = true) {
 			ISubject<T> obv;

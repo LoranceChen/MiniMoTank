@@ -155,7 +155,7 @@ public class ScheduleredPromise<T> : IPromise<T> {
 }
 
 public static class RSGPromiseEx {
-	public static IPromise<T> ShedulerOn<T>(this IPromise<T> source, IScheduler scheduler) {
+	public static IPromise<T> SchedulerOn<T>(this IPromise<T> source, IScheduler scheduler) {
 		return new ScheduleredPromise<T> (source, scheduler);
 	}
 }
