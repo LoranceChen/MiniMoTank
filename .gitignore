@@ -6,5 +6,5 @@ Temp
 obj
 
 #log
-.log
-.log.meta
+*.log
+*.log.meta
