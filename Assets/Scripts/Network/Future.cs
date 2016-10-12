@@ -10,9 +10,10 @@ namespace Lorance.RxSocket {
 	
 	/**
 	 * simple future warp system async callback
+	 * todo add a catch error ways and throw error if not catch
 	 * */
 	public class Future<T> {
-//		private object cbLock = new object(); not support concurrent
+		private object cbLock = new object(); //not support concurrent
 		private List<Action<T>> callBacks = new List<Action<T>>();
 		private List<Action<Exception>> errorCallBacks = new List<Action<Exception>>();
 		private T value;
@@ -29,10 +30,7 @@ namespace Lorance.RxSocket {
 		}
 
 		public void onComplete(Action<T> func) {
-//			lock (cbLock) {
 			onComplete(Some<Action<T>>.Apply(func), None<Action<Exception>>.Apply);
-//
-//			}
 		}
 
 		public void onComplete(Action<Exception> doError) {
@@ -44,45 +42,45 @@ namespace Lorance.RxSocket {
 		}
 
 		private void onComplete(Option<Action<T>> func, Option<Action<Exception>> doError) {
-			//			lock (cbLock) {
-			if (this.value == null && this.error == null) {
-				func.Foreach(x => callBacks.Add (x));
-				doError.Foreach(x => errorCallBacks.Add (x));
-			} else if (this.value != null) {
-				func.Foreach(f =>  f(value));
-			} else if (this.error != null) {
-				doError.Foreach(e =>  e(this.error));
-			} else { //this.value != null && this.error != null
-				throw new Exception ("can't achieve");
+			lock (cbLock) {
+				if (this.value == null && this.error == null) {
+					func.Foreach(x => callBacks.Add (x));
+					doError.Foreach(x => errorCallBacks.Add (x));
+				} else if (this.value != null) {
+					func.Foreach(f =>  f(value));
+				} else if (this.error != null) {
+					doError.Foreach(e =>  e(this.error));
+				}
 			}
-			//			}
 		}
 
 		public void completeWith (Func<T> func) {
-//			lock (cbLock) {
-			if (value == null || error == null) {
-				this.value = func ();
-				foreach (Action<T> act in callBacks) {
-					act (this.value);
+			lock (cbLock) {
+				if (this.value == null && this.error == null) {
+					this.value = func ();
+					foreach (Action<T> act in callBacks) {
+						act (this.value);
+					}
+					errorCallBacks.Clear ();
+					callBacks.Clear ();
+				} else {
+					throw new Exception ("Future has completed");
 				}
-				errorCallBacks.Clear ();
-				callBacks.Clear ();
-			} else {
-				throw new Exception ("Future has completed");
 			}
-//			}
 		}
 
 		public void completeWith (Func<Exception> error) {
-			if (value == null || error == null) {
-				this.error = error ();
-				foreach (Action<Exception> doError in errorCallBacks) {
-					doError (this.error);
+			lock (cbLock) {
+				if (this.value == null && this.error == null) {
+					this.error = error ();
+					foreach (Action<Exception> doError in errorCallBacks) {
+						doError (this.error);
+					}
+					errorCallBacks.Clear ();
+					callBacks.Clear ();
+				} else {
+					throw new Exception ("Future has completed");
 				}
-				errorCallBacks.Clear ();
-				callBacks.Clear ();
-			} else {
-				throw new Exception ("Future has completed");
 			}
 		}
 

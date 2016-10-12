@@ -15,19 +15,16 @@ public class Package : MonoBehaviour {
 		int level = 0, 
 		Option<string> alias = default(None<string>)) 
 	{
-		Debug.Log ("aaaa");
-		lock (mylock) {
-			if (level <= s_level || (!alias.IsEmpty () && s_aimLevels.Contains (alias.Get ()))) {
+		if (level <= s_level || (!alias.IsEmpty () && s_aimLevels.Contains (alias.Get ()))) {
 
-//			string path = UnityVar.inst.dataPath + @"/package_log.txt";
-			string line = "Thread Id - " + Thread.CurrentThread.ManagedThreadId + " - " + msg.ToString ();
-//			using (System.IO.StreamWriter file = 
-//				new System.IO.StreamWriter(path, true))
-//			{
-//				file.WriteLine(line);
-//			}
-				Debug.Log (line);
+		string path = UnityVar.inst.dataPath + @"/package_log.log";
+			string line = DateTime.Now.ToLocalTime().ToString() +  " - Thread Id - " + Thread.CurrentThread.ManagedThreadId + " - " + msg.ToString ();
+			using (System.IO.StreamWriter file = 
+				new System.IO.StreamWriter(path, true))
+			{
+				file.WriteLine(line);
 			}
+			Debug.Log (line);
 		}
 	}
 

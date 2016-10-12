@@ -10,7 +10,9 @@ namespace Lorance.Util.Helper {
 			var iProm = new Promise<T> ();
 			f.onComplete (
 				x => iProm.Resolve(x),
-				e => iProm.Reject(e)
+				e => {
+					iProm.Reject(e);
+				}
 			);
 
 			return iProm;
@@ -29,10 +31,17 @@ namespace Lorance.Util.Helper {
 			else
 				obv = new Subject<T> ();
 			
-			p.Done (x => {
-				obv.OnNext(x);
-				obv.OnCompleted();
-			});
+			p.Done (
+				x => {
+					obv.OnNext(x);
+					obv.OnCompleted();
+				},
+				e => {
+					
+					obv.OnError(e);
+					obv.OnCompleted();
+				}
+			);
 
 			return obv.AsObservable();
 		}

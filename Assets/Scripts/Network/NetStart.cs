@@ -152,7 +152,9 @@ public class NetStart : MonoBehaviour {
 		Package.s_level = 100;
 		client = new ClientEntrance(host, port);
 		socket = Helper.Futr2IPromise(client.Connect());
-		socket.Done (rst => {}, error => Package.Log("Connect fail - " + error.ToString()));
+
+		socket.Done (rst => {
+		}, error => Package.Log("Connect fail - " + error.ToString()));//you can recall client.Connect method
 		socketObv = Helper.IPomise2Observable (socket);
 		return socket;
 	}
