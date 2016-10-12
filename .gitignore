@@ -4,4 +4,7 @@ Temp
 *.sln
 *.csproj
 obj
+
+#log
 .log
+.log.meta
