@@ -10,7 +10,8 @@ namespace Lorance.RxSocket {
 	
 	/**
 	 * simple future warp system async callback
-	 * todo add a catch error ways and throw error if not catch
+	 * todo add a catch error ways and (if necessary) throw error if not catch
+	 * :: catch error just add a `map`/`catch` method consume Func<T, Exception> or Func<T, Future<Exception>> f
 	 * */
 	public class Future<T> {
 		private object cbLock = new object(); //not support concurrent

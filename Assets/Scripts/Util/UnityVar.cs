@@ -1,19 +1,27 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using RSG;
+using UniRx;
 public class UnityVar : MonoBehaviour {
-	public static UnityVar inst;
+	public static Promise<UnityVar> inst = new Promise<UnityVar> ();
 
+	public UnityVar() {
+//		inst = new Promise<UnityVar> ();
+	}
 	public string dataPath;
 	void Awake() {
-		inst = this;
 		this.dataPath = Application.dataPath;
 
+
+		//resolve after variable instanced
+		inst.Resolve(this);
+		inst.SchedulerOn (Scheduler.MainThread).Done (x => Package.Log("init MainThread scheduler"));
 		DontDestroyOnLoad(gameObject);
 	}
 
 	// Use this for initialization
 	void Start () {
+		
 	}
 	
 	// Update is called once per frame

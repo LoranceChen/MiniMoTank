@@ -31,7 +31,7 @@ public class NetStartTest : MonoBehaviour {
 		readObv = socketObv.SelectMany ((x) => {
 			return x.startReading();
 		});
-
+		readObv.SubscribeOnMainThread ();
 		//for debug
 		readObv.Subscribe ((x) => {
 			Package.Log("completed proto - " + x.uuid + ";" + x.length + ";" + x.loaded.Bytes.GetString());

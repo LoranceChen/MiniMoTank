@@ -35,6 +35,7 @@ public class ScheduleredPromise<T> : IPromise<T> {
 	public void Done (System.Action<T> onResolved)
 	{
 		scheduler.Schedule (() => {
+//			Package.Log("done - ");
 			source.Done(onResolved);
 		});
 	}

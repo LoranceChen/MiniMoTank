@@ -6,19 +6,24 @@ using System.IO;
 using System.Text;
 using Lorance.RxSocket;
 using System.Threading;
+using System.Net;
 
 namespace Lorance.RxSocket.Session {
 	/// <summary>
 	/// Warpped socket stream by CompletedProto data
 	/// </summary>
 	public class ConnectedSocket {
-		private Socket socket;
+		public AddressPair addressPair{ get; private set;}
+
+		public Socket socket;//{ get; private set;}
 		private ISubject<CompletedProto> completedProtosSubj = new Subject<CompletedProto>();
 		private Attachment readAttach;
 		private ReaderDispatch readerDispatch = new ReaderDispatch();
 		private Semaphore sendDone = new Semaphore(1, 1);
+
 		public ConnectedSocket (Socket socket) {
 			this.socket = socket;
+			addressPair = new AddressPair((IPEndPoint)socket.LocalEndPoint, (IPEndPoint)socket.RemoteEndPoint);
 			readAttach = new Attachment (new ByteBuffer(new byte[Configration.READBUFFER_LIMIT]), socket);
 		}
 			
@@ -95,6 +100,17 @@ namespace Lorance.RxSocket.Session {
 		public override string ToString ()
 		{
 			return string.Format (socket.LocalEndPoint.ToString() + " -> "+ socket.RemoteEndPoint.ToString());
+		}
+	}
+
+	public class AddressPair {
+		public IPEndPoint local{ get; private set;}
+		public IPEndPoint remote{ get; private set;}
+
+		public AddressPair(IPEndPoint local, IPEndPoint remote){
+			this.local = local;
+
+			this.remote = remote;
 		}
 	}
 }
