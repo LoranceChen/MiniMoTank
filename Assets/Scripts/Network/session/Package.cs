@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System;
 
-public class Package : MonoBehaviour {
+public class Package {
 	public static int s_level = 0;
 	public static List<string> s_aimLevels = new List<string> (); 
 

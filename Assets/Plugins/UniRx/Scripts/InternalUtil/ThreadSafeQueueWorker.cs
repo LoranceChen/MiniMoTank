@@ -90,6 +90,11 @@ namespace UniRx.InternalUtil
                     actionList[i] = null;
                     actionStates[i] = null;
                 }
+
+				using (System.IO.StreamWriter file = 
+					new System.IO.StreamWriter ("Assets/package_log.log", true)) {
+					file.WriteLine (System.Threading.Thread.CurrentThread.ManagedThreadId+ " ExecuteAll(Action<Exception> u");
+				}
             }
 
             lock (gate)

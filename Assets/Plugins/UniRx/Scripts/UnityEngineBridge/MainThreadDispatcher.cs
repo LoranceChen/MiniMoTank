@@ -205,6 +205,7 @@ namespace UniRx
         /// <summary>Dispatch Asyncrhonous action.</summary>
         public static void Post(Action<object> action, object state)
         {
+			Debug.Log (System.Threading.Thread.CurrentThread.ManagedThreadId + "Post(Action<object> action," );
 #if UNITY_EDITOR
             if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
 
@@ -466,14 +467,28 @@ namespace UniRx
             }
         }
 
+        public static bool IsInMainThread
+        {
+            get
+            {
+                return (mainThreadToken != null);
+            }
+        }
+
         void Awake()
         {
-//			Debug.Log ("do...Awake");
             if (instance == null)
             {
                 instance = this;
                 mainThreadToken = new object();
                 initialized = true;
+
+#if (ENABLE_MONO_BLEEDING_EDGE_EDITOR || ENABLE_MONO_BLEEDING_EDGE_STANDALONE)
+                if (UniRxSynchronizationContext.AutoInstall)
+                {
+                    SynchronizationContext.SetSynchronizationContext(new UniRxSynchronizationContext());
+                }
+#endif
 
                 updateMicroCoroutine = new MicroCoroutine(ex => unhandledExceptionCallback(ex));
                 fixedUpdateMicroCoroutine = new MicroCoroutine(ex => unhandledExceptionCallback(ex));
@@ -512,7 +527,6 @@ namespace UniRx
         {
             while (true)
             {
-//				Debug.Log ("do...RunUpdateMicroCoroutine");
                 yield return null;
                 updateMicroCoroutine.Run();
             }
@@ -601,6 +615,7 @@ namespace UniRx
                     unhandledExceptionCallback(ex);
                 }
             }
+//			Debug.Log (System.Threading.Thread.CurrentThread.ManagedThreadId + "void Update()" );
             queueWorker.ExecuteAll(unhandledExceptionCallback);
         }
 

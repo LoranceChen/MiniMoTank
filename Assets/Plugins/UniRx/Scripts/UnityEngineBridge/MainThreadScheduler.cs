@@ -147,6 +147,7 @@ namespace UniRx
             public IDisposable Schedule(Action action)
             {
                 var d = new BooleanDisposable();
+				Debug.Log (System.Threading.Thread.CurrentThread.ManagedThreadId + "Schedule(Action action)" );
                 MainThreadDispatcher.Post(scheduleAction, Tuple.Create(d, action));
                 return d;
             }

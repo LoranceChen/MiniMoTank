@@ -8,3 +8,7 @@ obj
 #log
 *.log
 *.log.meta
+
+#emacs
+*~
+\#*\#

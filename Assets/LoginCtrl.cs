@@ -4,6 +4,7 @@ using UniRx;
 using RSG;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class LoginCtrl : MonoBehaviour {
 	NetGate netGate;
@@ -40,7 +41,9 @@ public class LoginCtrl : MonoBehaviour {
 //		});
 //
 		loginBtn.onClick.AddListener(() => {
-			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn(Scheduler.MainThread).Done (x => {
+			//todo BUG: not dispatch on main sometimes
+			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn(Scheduler.MainThreadEndOfFrame ).Done (x => {
+				Debug.Log("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
 				Package.Log("Login response - " + x.ToString());
 				if(x.errorMsg == null) {
 					Package.Log("login success - " + x.ToString());
@@ -59,6 +62,12 @@ public class LoginCtrl : MonoBehaviour {
 				Debug.Log("enter world ready success - " + x.isSuccess);
 				//do connect worlds socket
 				var netWorld = Instantiate(netWorldPrefab);
+				var jsonFur = NetWorld.s_notWorldFur.Then(xx => {
+					return xx.jsonObvFur;
+				});
+				jsonFur.Done(xxx => {
+					SceneManager.LoadSceneAsync(SceneConstant.World);
+				});
 				DontDestroyOnLoad(netWorld);
 				Destroy(netGate.gameObject);
 			});

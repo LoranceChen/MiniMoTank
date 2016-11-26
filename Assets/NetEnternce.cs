@@ -21,12 +21,19 @@ using Lorance.Util.Extension;
 public class NetEntrance: MonoBehaviour {
 	private ClientEntrance client;
 	public IPromise<ConnectedSocket> socket;// todo init at construct = new Promise<ConnectedSocket>();
-	private IObservable<ConnectedSocket> socketObv;
-	private IObservable<CompletedProto> readObv;
-	private IObservable<JObject> jsonObv;
+	public IObservable<ConnectedSocket> socketObv{get; private set;}
+	public IObservable<CompletedProto> readObv{get; private set;}
+
+	public Promise<IObservable<JObject>> jsonObvFur{ get; private set;}//json Obv has ready
+//	public Promise<IObservable<JObject>> jsonObvFur{get; private set;}
+	public IObservable<JObject> jsonObv{get; private set;}
 
 	//	private ConcurrentDictionary<string, Action<CompletedProto>> registerRsp = new ConcurrentDictionary<string, Action<CompletedProto>>(); todo
 	private ConcurrentDictionary<string, Action<CompletedProto>> registerJsonRsp = new ConcurrentDictionary<string, Action<CompletedProto>>();
+
+	public NetEntrance() {
+		jsonObvFur = new Promise<IObservable<JObject>> ();
+	}
 
 	private void AddToRegisterJsonRsp(string key, Action<CompletedProto> action) {
 		//		var itor = registerJsonRsp.GetEnumerator();
@@ -198,6 +205,7 @@ public class NetEntrance: MonoBehaviour {
 			//			Debug.Log("json - " + jstr);
 			return jsonRst;
 		});
+		jsonObvFur.Resolve (jsonObv);
 
 		//		jsonObv.Subscribe ();
 		return jsonObv;
