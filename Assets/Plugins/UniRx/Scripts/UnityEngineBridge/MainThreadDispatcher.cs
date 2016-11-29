@@ -438,7 +438,7 @@ namespace UniRx
 
                 try
                 {
-                    dispatcher = GameObject.FindObjectOfType<MainThreadDispatcher>();
+					dispatcher = GameObject.FindObjectOfType<MainThreadDispatcher>();
                 }
                 catch
                 {

@@ -7,4 +7,7 @@ the responsity is clientside build with Unity3D Engine.The server side build wit
 - Newtonsoft for json prase
 
 ## Done
-- [16-11-29] fix `SchedulerOn(Scheduler.MainThread)` not works
+- [16-11-29] fix `SchedulerOn(Scheduler.MainThread)` not works.
+
+## Notice
+- create `MainThreadDispather` GameObject by handle avoid dynamic create on another thread which will throw exception:create GameObject not in main thread.

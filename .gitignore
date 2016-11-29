@@ -12,6 +12,8 @@ obj
 #emacs
 *~
 \#*\#
+#markdown mode
+.\#*.md
 
 #test
 output/
