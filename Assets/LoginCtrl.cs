@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine.SceneManagement;
 
 public class LoginCtrl : MonoBehaviour {
-	NetGate netGate;
+	IPromise<NetGate> netGateProm;
 
 	public GameObject netWorldPrefab;
 	public GameObject loginObj;
@@ -23,7 +23,7 @@ public class LoginCtrl : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		netGate = NetGate.s_netGate;
+		netGateProm = NetGate.s_netGate;
 //		do after login success
 //		var worlds = GetWorldInfo (new WorldInfoReq ());
 //		worlds.Done(x => {
@@ -31,7 +31,6 @@ public class LoginCtrl : MonoBehaviour {
 //				Debug.Log("world - " + y);
 //			});
 //		});
-
 		//todo wait server complete the api
 //		var roles = GetRoleInfo (new RoleInfoReq ());
 //		roles.Done (x => {
@@ -40,18 +39,18 @@ public class LoginCtrl : MonoBehaviour {
 //			});
 //		});
 //
-		loginBtn.onClick.AddListener(() => {
+		loginBtn.onClick.AddListener (() => {
 			//todo BUG: not dispatch on main sometimes
-			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn(Scheduler.MainThreadEndOfFrame ).Done (x => {
-				Debug.Log("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
-				Package.Log("Login response - " + x.ToString());
-				if(x.errorMsg == null) {
-					Package.Log("login success - " + x.ToString());
+			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn (Scheduler.MainThread).Done (x => {
+				Debug.Log ("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
+				Package.Log ("Login response - " + x.ToString ());
+				if (x.errorMsg == null) {
+					Package.Log ("login success - " + x.ToString ());
 					//choice game world -> choice role
-					enterObj.SetActive(true);
-					loginObj.SetActive(false);
+					enterObj.SetActive (true);
+					loginObj.SetActive (false);
 				} else {
-					rspTips.text = x.ToString();
+					rspTips.text = x.ToString ();
 				}
 			});
 		});
@@ -69,7 +68,7 @@ public class LoginCtrl : MonoBehaviour {
 					SceneManager.LoadSceneAsync(SceneConstant.World);
 				});
 				DontDestroyOnLoad(netWorld);
-				Destroy(netGate.gameObject);
+				netGateProm.Then(netGate => Destroy(netGate.gameObject));
 			});
 		});
 
@@ -99,19 +98,19 @@ public class LoginCtrl : MonoBehaviour {
 	//TryLogin(name: String, pwd: String, taskId: String, aim: Long)
 	//case class AccountAuthenRsp(id: String, errorMsg: Option[String])
 	public IPromise<LoginRsp> Login(LoginReq loginReq) {
-		return netGate.SendWithJsonResult<LoginReq, LoginRsp>(loginReq);
+		return netGateProm.Then(x => x.SendWithJsonResult<LoginReq, LoginRsp>(loginReq));
 	}
 
 	public IPromise<WorldInfoRsp> GetWorldInfo(WorldInfoReq worldInfoReq) {
-		return netGate.SendWithJsonResult<WorldInfoReq, WorldInfoRsp>(worldInfoReq);
+		return netGateProm.Then(x => x.SendWithJsonResult<WorldInfoReq, WorldInfoRsp>(worldInfoReq));
 	}
 
 	public IPromise<RoleInfoRsp> GetRoleInfo(RoleInfoReq roleInfoReq) {
-		return netGate.SendWithJsonResult<RoleInfoReq, RoleInfoRsp>(roleInfoReq);
+		return netGateProm.Then(x => x.SendWithJsonResult<RoleInfoReq, RoleInfoRsp>(roleInfoReq));
 	}
 
 	public IPromise<EnterWorldRsp> EnterWorld(EnterWorldReq enterWorld) {
-		return netGate.SendWithJsonResult<EnterWorldReq, EnterWorldRsp>(enterWorld);
+		return netGateProm.Then(x => x.SendWithJsonResult<EnterWorldReq, EnterWorldRsp>(enterWorld));
 //		return netStart.socket.Done (x => {
 //			x.send();
 //		});//<EnterWorld, RoleInfoRsp>(roleInfoReq);

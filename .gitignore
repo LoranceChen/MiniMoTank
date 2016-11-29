@@ -12,3 +12,6 @@ obj
 #emacs
 *~
 \#*\#
+
+#test
+output/
