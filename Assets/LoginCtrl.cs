@@ -41,6 +41,7 @@ public class LoginCtrl : MonoBehaviour {
 //
 		loginBtn.onClick.AddListener (() => {
 			//todo BUG: not dispatch on main sometimes
+//			for(var i = 0; i < 10; i++) {
 			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn (Scheduler.MainThread).Done (x => {
 				Debug.Log ("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
 				Package.Log ("Login response - " + x.ToString ());
@@ -53,6 +54,7 @@ public class LoginCtrl : MonoBehaviour {
 					rspTips.text = x.ToString ();
 				}
 			});
+//			}
 		});
 
 		enterWorldBtn.onClick.AddListener(() => {

@@ -172,7 +172,6 @@ public class NetEntrance: MonoBehaviour {
 		return socketObv.SelectMany (sck => {
 			readObv = sck.startReading();
 			//todo dispatch registed callback `registerRsp`
-
 			return readObv;
 		});
 	}
@@ -188,7 +187,7 @@ public class NetEntrance: MonoBehaviour {
 					//					Debug.Log("taskIddsadsad - " + taskIdentity.taskId);
 					//					Debug.Log("ggggggggggg  - " + tid);
 					registerJsonRsp.GetValueEx(tid).Foreach( action => {
-						//						Debug.Log("get taskId - " + taskIdentity.taskId);
+						Package.Log("get taskId - " + taskIdentity.taskId);
 						action(proto);
 					});
 				});

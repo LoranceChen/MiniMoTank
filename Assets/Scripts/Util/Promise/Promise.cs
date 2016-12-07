@@ -282,6 +282,7 @@ namespace RSG
 
 			try
 			{
+				//UnityEngine.Debug.Log("Thread id - " + System.Threading.Thread.CurrentThread.ManagedThreadId +  " Do resolve the call back - ");
 				callback(value);
 			}
 			catch (Exception ex)

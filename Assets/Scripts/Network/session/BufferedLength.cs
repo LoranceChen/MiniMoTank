@@ -24,10 +24,11 @@ namespace Lorance.RxSocket.Session{
 		}
 
 		public int Value(){
-			if(IsCompleted)
+			if (IsCompleted) {
+				Package.Log ("length - " + length + " arrivedNumber - " + arrivedNumber);
 				return length;
-			else 
-				throw new System.Exception ("length not completed");
+			} else 
+				throw new System.Exception ("length not completed - " + " " + arrivedNumber + " " + length);
 		}
 
 

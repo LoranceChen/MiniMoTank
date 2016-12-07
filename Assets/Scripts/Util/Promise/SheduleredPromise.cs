@@ -2,14 +2,18 @@
 using System.Collections;
 using RSG;
 using UniRx;
+using System.Collections.Generic;
+using System;
 
 /// <summary>
 /// a promise able to schedule action on pool , current thread or Unity MainThread
 /// only support on Unity MainThread yet.
 /// </summary>
-public class ScheduleredPromise<T> : IPromise<T> {
+public class ScheduleredPromise<T> : IPromise<T>{//TODOResolve add resolve thread dispatch
 	readonly IPromise<T> source;
 	readonly IScheduler scheduler;
+
+//	private Dictionary<IScheduler, Action<T>> holderActions = new Dictionary<IScheduler, Action<T>> ();
 
 	public ScheduleredPromise(IPromise<T> source, IScheduler scheduler) {
 		this.source = source;
@@ -28,91 +32,97 @@ public class ScheduleredPromise<T> : IPromise<T> {
 	}
 	public void Done (System.Action<T> onResolved, System.Action<System.Exception> onRejected)
 	{
-		scheduler.Schedule (() => {
-			source.Done(onResolved, onRejected);
-		});
+		source.Done((a) => scheduler.Schedule(() => onResolved(a)), (e) => scheduler.Schedule(() => onRejected(e)));
 	}
 	public void Done (System.Action<T> onResolved)
 	{
 		scheduler.Schedule (() => {
-//			Package.Log("done - ");
-			source.Done(onResolved);
+//			Package.Log("ScheduleredPromise done - ");
+			source.Done((a) => scheduler.Schedule(() => onResolved(a)));
 		});
 	}
 	public void Done ()
 	{
-		scheduler.Schedule (() => {
-			source.Done();
-		});
+		source.Done();
 	}
 	public IPromise<T> Catch (System.Action<System.Exception> onRejected)
 	{
-		return warpOnSchedule (() => source.Catch (onRejected));
+		return source.Catch ((e) => scheduler.Schedule(() => onRejected(e)));
 	}
 	public IPromise<ConvertedT> Then<ConvertedT> (System.Func<T, IPromise<ConvertedT>> onResolved)
 	{
-		return warpOnSchedule<ConvertedT> (() => source.Then<ConvertedT> (onResolved));
+		return source.Then<ConvertedT> ((a) => warpOnSchedule<ConvertedT>(() => onResolved(a)));
 	}
 	public IPromise Then (System.Func<T, IPromise> onResolved)
 	{
-		return warpOnSchedule_NonGeneric (() => source.Then (onResolved));
+		return source.Then ((a) => warpOnSchedule_NonGeneric(() => onResolved(a)));
 	}
 	public IPromise<T> Then (System.Action<T> onResolved)
 	{
-		return warpOnSchedule (() => source.Then (onResolved));
+		return source.Then ((a) => {scheduler.Schedule(() => onResolved(a)); return;});
 	}
 	public IPromise<ConvertedT> Then<ConvertedT> (System.Func<T, IPromise<ConvertedT>> onResolved, System.Action<System.Exception> onRejected)
 	{
-		return warpOnSchedule<ConvertedT> (() => {
-			return source.Then<ConvertedT>(onResolved, onRejected);
-		});
+		return source.Then<ConvertedT>((a) => warpOnSchedule<ConvertedT>(() => onResolved(a)),
+			(e) => scheduler.Schedule(() => onRejected(e)));
 	}
 	public IPromise Then (System.Func<T, IPromise> onResolved, System.Action<System.Exception> onRejected)
 	{
-		return warpOnSchedule_NonGeneric (() => {
-			return source.Then(onResolved, onRejected);
-		});
+		return source.Then((a) => warpOnSchedule_NonGeneric(() => onResolved(a)),
+			(e) => scheduler.Schedule(() => onRejected(e)));
 	}
 	public IPromise<T> Then (System.Action<T> onResolved, System.Action<System.Exception> onRejected)
 	{
-		return warpOnSchedule (() => {
-			return source.Then(onResolved, onRejected);
-		});
+		return source.Then((a) => scheduler.Schedule(() => onResolved(a)),
+			(e) => scheduler.Schedule(() => onRejected(e)));
 	}
+
+	//can't do forward because thread dispatch must do async(which contains Promise as parameter)
 	public IPromise<ConvertedT> Then<ConvertedT> (System.Func<T, ConvertedT> transform)
 	{
-		return warpOnSchedule<ConvertedT> (() => {
-			return source.Then<ConvertedT>(transform);
-		});
+		return this.Then<ConvertedT> ((t) => Promise<ConvertedT>.Resolved(transform(t)));//source.Then<ConvertedT>((a) => warpOnSchedule<ConvertedT>(() => transform(a)));
 	}
+
+	//todo
 	public IPromise<ConvertedT> Transform<ConvertedT> (System.Func<T, ConvertedT> transform)
 	{
-		return warpOnSchedule<ConvertedT> (() => {
-			return source.Then<ConvertedT>(transform);
-		});
+		return this.Then<ConvertedT> (transform);//source.Then<ConvertedT>((a) => transform);
 	}
-	public IPromise<System.Collections.Generic.IEnumerable<ConvertedT>> ThenAll<ConvertedT> (System.Func<T, System.Collections.Generic.IEnumerable<IPromise<ConvertedT>>> chain)
+	public IPromise<IEnumerable<ConvertedT>> ThenAll<ConvertedT> (Func<T, IEnumerable<IPromise<ConvertedT>>> chain)
 	{
-		return warpCollectionOnSchedule<ConvertedT> (() => {
-			return source.ThenAll<ConvertedT>(chain);
+		var x = source.Then<IEnumerable<ConvertedT>> (aa => { //so amazing! 
+			var chainRst = new Promise<IEnumerable<IPromise<ConvertedT>>>();
+			scheduler.Schedule(() => chainRst.Resolve(chain(aa)));
+			var y = chainRst.Then<IEnumerable<ConvertedT>>((bb) => Promise<ConvertedT>.All(bb));
+			return y;
 		});
+
+		return x;
 	}
+
 	public IPromise ThenAll (System.Func<T, System.Collections.Generic.IEnumerable<IPromise>> chain)
 	{
-		return warpOnSchedule_NonGeneric (() => {
-			return source.ThenAll(chain);
+		return source.Then (aa => {
+			var chainRst = new Promise<IEnumerable<IPromise>>();
+			scheduler.Schedule(() => chainRst.Resolve(chain(aa)));
+			return chainRst.Then((bb) => Promise.All(bb));
 		});
 	}
 	public IPromise<ConvertedT> ThenRace<ConvertedT> (System.Func<T, System.Collections.Generic.IEnumerable<IPromise<ConvertedT>>> chain)
 	{
-		return warpOnSchedule<ConvertedT> (() => {
-			return source.ThenRace<ConvertedT>(chain);
+		return source.Then<ConvertedT> (aa => {
+			var chainRst = new Promise<IEnumerable<IPromise<ConvertedT>>>();
+			scheduler.Schedule(() => chainRst.Resolve(chain(aa)));
+			return chainRst.Then<ConvertedT>(bb => Promise<ConvertedT>.Race(bb));
 		});
 	}
+
 	public IPromise ThenRace (System.Func<T, System.Collections.Generic.IEnumerable<IPromise>> chain)
 	{
-		return warpOnSchedule_NonGeneric (() => {
-			return source.ThenRace(chain);
+		return source.Then (aa => {
+			var chainRst = new Promise<IEnumerable<IPromise>>();
+			scheduler.Schedule(() => chainRst.Resolve(chain(aa)));
+			return chainRst.Then(bb => Promise.Race(bb));
 		});
 	}
 	#endregion
@@ -153,6 +163,8 @@ public class ScheduleredPromise<T> : IPromise<T> {
 
 		return promise;
 	}
+
+
 }
 
 public static class RSGPromiseEx {
