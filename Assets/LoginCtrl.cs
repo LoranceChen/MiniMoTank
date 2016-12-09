@@ -41,19 +41,19 @@ public class LoginCtrl : MonoBehaviour {
 //
 		loginBtn.onClick.AddListener (() => {
 			//todo BUG: not dispatch on main sometimes
-			for(var i = 0; i < 50; i++) {
-			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn (Scheduler.MainThread).Done (x => {
-				Debug.Log ("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
-				Package.Log ("Login response - " + x.ToString ());
-				if (x.errorMsg == null) {
-					Package.Log ("login success - " + x.ToString ());
-					//choice game world -> choice role
-					enterObj.SetActive (true);
-					loginObj.SetActive (false);
-				} else {
-					rspTips.text = x.ToString ();
-				}
-			});
+			for(var i = 0; i < 1000; i++) {
+				Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn (Scheduler.MainThread).Done (x => {
+					Debug.LogWarning ("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
+					Package.Log ("Login response - " + x.ToString ());
+					if (x.errorMsg == null) {
+						Package.Log ("login success - " + x.ToString ());
+						//choice game world -> choice role
+						enterObj.SetActive (true);
+						loginObj.SetActive (false);
+					} else {
+						rspTips.text = x.ToString ();
+					}
+				});
 			}
 		});
 
