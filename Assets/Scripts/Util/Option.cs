@@ -53,6 +53,10 @@ namespace Lorance.Util {
 		public override T Get() {
 			return value;
 		}
+
+		public override string ToString() {
+			return String.Format ("Some({0})", value);
+		}
 //
 //		public void Foreach (Action<T> act) {
 //			if (!IsEmpty ()) {
@@ -93,6 +97,10 @@ namespace Lorance.Util {
 		}
 
 		public static new None<T> Apply = new None<T>();
+
+		public override string ToString() {
+			return "None";
+		}
 //		public void Foreach (Action<T> act) {
 //			if (!IsEmpty ()) {
 //				act (Get());

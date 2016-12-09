@@ -16,7 +16,7 @@ namespace Lorance.RxSocket.Session {
 		public AddressPair addressPair{ get; private set;}
 
 		public Socket socket;//{ get; private set;}
-		private ISubject<CompletedProto> completedProtosSubj = new Subject<CompletedProto>();
+		private ISubject<CompletedProto> completedProtosSubj;// = new Subject<CompletedProto>();
 		private Attachment readAttach;
 		private ReaderDispatch readerDispatch = new ReaderDispatch();
 		private Semaphore sendDone = new Semaphore(1, 1);
@@ -25,6 +25,7 @@ namespace Lorance.RxSocket.Session {
 			this.socket = socket;
 			addressPair = new AddressPair((IPEndPoint)socket.LocalEndPoint, (IPEndPoint)socket.RemoteEndPoint);
 			readAttach = new Attachment (new ByteBuffer(new byte[Configration.READBUFFER_LIMIT]), socket);
+			completedProtosSubj = new Subject<CompletedProto> ();
 		}
 			
 		public void Disconnect () {
@@ -37,6 +38,7 @@ namespace Lorance.RxSocket.Session {
 			beginReadLoop ();
 			return completedProtosSubj.AsObservable();
 		}
+
 
 		public void send(ByteBuffer data) {
 			send (data.Bytes);

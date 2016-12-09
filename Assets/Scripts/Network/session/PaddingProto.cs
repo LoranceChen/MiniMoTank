@@ -19,6 +19,16 @@ namespace Lorance.RxSocket.Session
 			this.lengthOpt = lengthOpt;
 			this.loading = loading;
 		}
+	
+		public override string ToString() {
+//			string loadStr = "";
+//			if (loading == null) {
+//				loadStr = "null";
+//			} else {
+//				loadStr = loading.Bytes.GetString ();
+//			}
+			return String.Format ("PaddingProto({0},{1},{2})", uuidOpt, lengthOpt, loading == null ? "" : loading.ToString());
+		}
 	}
 
 	public class CompletedProto : BufferedProto {

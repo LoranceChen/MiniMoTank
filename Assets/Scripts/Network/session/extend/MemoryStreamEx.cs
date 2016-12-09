@@ -1,5 +1,7 @@
 ﻿using System;
 using System.IO;
+using UnityEngine;
+using System.Text;
 
 namespace Lorance.RxSocket.Session
 {
@@ -56,7 +58,9 @@ namespace Lorance.RxSocket.Session
 		}
 
 		public byte Get() {
-			return src [NextGetIndex ()];
+			var nextPos = NextGetIndex ();
+//			Debug.LogWarning ("NextPos - " + nextPos);
+			return src [nextPos];
 		}
 
 		public ByteBuffer Get(byte[] dst, int offset, int length) {
@@ -93,8 +97,12 @@ namespace Lorance.RxSocket.Session
 		}
 
 		private int NextGetIndex() {
-			if (position >= limit)
-				throw new BufferUnderflowException();
+//			Debug.LogWarning ("NextGetIndex - poistion - " + position + " limit - " + limit);
+//			Debug.LogWarning ("NextGetIndex position < limit - " + (position < limit));
+			if (position >= limit) {
+//				Debug.LogError ("BufferUnderflowException - poistion - " + position + " limit - " + limit);
+				throw new BufferUnderflowException ();
+			}
 			return position++;
 		}
 
@@ -102,6 +110,22 @@ namespace Lorance.RxSocket.Session
 			if (position >= limit)
 				throw new BufferOverflowException();
 			return position++;
+		}
+
+		public override string ToString ()
+		{
+//			private byte[] src;
+//			private int position = 0;
+//			private int limit;
+//			private int capacity;
+//			private int mark = -1;
+			StringBuilder bytesStr = new StringBuilder();
+			for (var i = 0; i < src.Length; i++) {
+				var bt = src [i];
+				bytesStr.Append("[" + i + "]" + bt.ToString () + ",");
+			}
+
+			return string.Format ("ByteBuffer(src:{0},position:{1},limit:{2},capacity:{3},mark:{4})", bytesStr.ToString(), position, limit, capacity, mark);
 		}
 	}
 

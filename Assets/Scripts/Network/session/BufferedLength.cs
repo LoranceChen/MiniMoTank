@@ -27,10 +27,28 @@ namespace Lorance.RxSocket.Session{
 			if (IsCompleted) {
 				Package.Log ("length - " + length + " arrivedNumber - " + arrivedNumber);
 				return length;
-			} else 
-				throw new System.Exception ("length not completed - " + " " + arrivedNumber + " " + length);
+			} else {
+				var msg = "length not completed - " + " " + arrivedNumber + " " + length;
+				Debug.LogError(msg);
+				throw new System.Exception (msg);
+			}
 		}
 
+		public override string ToString ()
+		{
+			string arrivedStr = null;
+			if (arrived == null) {
+				arrivedStr = "";
+			} else {
+				var bytesStr = new System.Text.StringBuilder ();
+				for (var i = 0; i < arrived.Length; i++) {
+					var bt = arrived [i];
+					bytesStr.Append ("[" + i + "]" + bt.ToString () + ",");
+				}
+				arrivedStr = bytesStr.ToString ();
+			}
+			return string.Format ("BufferedLength(isCompleted:{0}, length:{1}, arrived:{2}, arrivedNumber:{3})", IsCompleted, length, arrivedStr, arrivedNumber);
+		}
 
 	}
 

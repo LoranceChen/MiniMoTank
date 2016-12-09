@@ -205,7 +205,7 @@ namespace UniRx
         /// <summary>Dispatch Asyncrhonous action.</summary>
         public static void Post(Action<object> action, object state)
         {
-			Debug.Log (System.Threading.Thread.CurrentThread.ManagedThreadId + "Post(Action<object> action," );
+//			Debug.Log (System.Threading.Thread.CurrentThread.ManagedThreadId + "Post(Action<object> action," );
 #if UNITY_EDITOR
             if (!ScenePlaybackDetector.IsPlaying) { EditorThreadDispatcher.Instance.Enqueue(action, state); return; }
 

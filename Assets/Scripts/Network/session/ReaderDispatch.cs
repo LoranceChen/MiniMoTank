@@ -40,7 +40,7 @@ namespace Lorance.RxSocket.Session{
 		}
 
 		private Option<Queue<CompletedProto>> receiveHelper(ByteBuffer src, Option<Queue<CompletedProto>> completes) {
-			if (tmpProto.uuidOpt is None<byte>) {
+			if (tmpProto.uuidOpt is None<byte>) {//not get uuid
 				Option<byte> uuidOpt = tryGetByte (src);
 				tmpProto = new PaddingProto (uuidOpt, None<BufferedLength>.Apply, null);
 				Option<BufferedLength> lengthOpt = uuidOpt.FlatMap<BufferedLength> ((byte uuid) => {
@@ -52,6 +52,7 @@ namespace Lorance.RxSocket.Session{
 					if (lengthVal.IsCompleted) {
 						int length = lengthVal.Value ();
 						if (length > maxLength) {
+							Debug.LogError("TmpBufferOverLoadException context - " + tmpProto.ToString());
 							//how to handle the msg?
 							throw new TmpBufferOverLoadException ("length - " + length);
 						} else if (src.Remaining () < length) {
@@ -75,9 +76,13 @@ namespace Lorance.RxSocket.Session{
 				});
 
 				if (protoOpt is None<CompletedProto>) {
+					Debug.LogError ("Not completed yet - " + tmpProto);
 					return completes;
 				} else {
 					var completed = (CompletedProto)protoOpt.Get ();
+					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+					Debug.LogError ("Current `src` status - " + src.ToString());
+
 					if (completes.IsEmpty ()) {
 						var completedQueue = new Queue<CompletedProto> ();
 						completedQueue.Enqueue (completed);
@@ -89,7 +94,7 @@ namespace Lorance.RxSocket.Session{
 						}));
 					}
 				}
-			} else if (!tmpProto.uuidOpt.IsEmpty () && tmpProto.lengthOpt.IsEmpty ()) {
+			} else if (!tmpProto.uuidOpt.IsEmpty () && tmpProto.lengthOpt.IsEmpty ()) {//get uuid but not any length data 
 				var uuid = tmpProto.uuidOpt.Get ();
 				var lengthOpt = TryGetLength (src, None<BufferedLength>.Apply);
 				var protoOpt = lengthOpt.FlatMap<CompletedProto> ((lengthValue) => {
@@ -107,6 +112,9 @@ namespace Lorance.RxSocket.Session{
 					return completes;
 				} else {
 					var completed = (CompletedProto)protoOpt.Get ();
+					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+					Debug.LogError ("Current `src` status - " + src.ToString());
+
 					if (completes.IsEmpty ()) {
 						var completedQueue = new Queue<CompletedProto> ();
 						completedQueue.Enqueue (completed);
@@ -118,77 +126,127 @@ namespace Lorance.RxSocket.Session{
 						}));
 					}
 				}
-			} else if (!tmpProto.uuidOpt.IsEmpty () && !(tmpProto.lengthOpt is Some<BufferedLength>)) {
+			} else if (!tmpProto.uuidOpt.IsEmpty () && tmpProto.lengthOpt is Some<BufferedLength>) {//get uuid and get some/all bufferedLength data
 				var uuid = tmpProto.uuidOpt.Get ();
 				var pending = (BufferedLength)tmpProto.lengthOpt.Get ();
-				var lengthOpt = TryGetLength (src, new Some<BufferedLength> (pending));
-				var protoOpt = lengthOpt.FlatMap<CompletedProto> ((lengthValue) => {
-					if (lengthValue.IsCompleted) {
-//						var length = lengthValue.Value ();
-						var lengthedProto = new PaddingProto (new Some<byte> (uuid), lengthOpt, new ByteBuffer (0));
-						return ReadLoad (src, lengthedProto);
+				if (pending.IsCompleted) {
+//					var uuid = tmpProto.uuidOpt.Get ();
+					var lengthOpt = tmpProto.lengthOpt;
+//					var length = lengthOpt.Get().Value ();
+					var length = pending.Value ();
+					var padding = tmpProto.loading;
+					Option<CompletedProto> protoOpt = null;
+					if(padding.Position + src.Remaining() < length){
+						tmpProto = new PaddingProto (new Some<byte>(uuid), lengthOpt, padding.Put(src));
+						protoOpt = NoneProto;
 					} else {
-						tmpProto = new PaddingProto (new Some<byte> (uuid), lengthOpt, new ByteBuffer (0));
-						return NoneProto;
-					}
-				});
+						tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer (0));
+						var needLength = length - padding.Position;//10 - 5 = 5
+						var newAf = new byte[needLength];
+						src.Get (newAf, 0, needLength);
 
-				if (protoOpt is None<CompletedProto>) {
-					return completes;
-				} else {
-					var completed = (CompletedProto)protoOpt.Get ();
-					if (completes.IsEmpty ()) {
-						var completedQueue = new Queue<CompletedProto> ();
-						completedQueue.Enqueue (completed);
-						return receiveHelper (src, new Some<Queue<CompletedProto>> (completedQueue));
+						var completed = new CompletedProto (uuid, length, padding.Put (newAf));
+						protoOpt = new Some<CompletedProto> (completed);
+					}
+
+					if (protoOpt is None<CompletedProto>) {
+						return completes;
 					} else {
-						return receiveHelper (src, completes.Map ((a) => {
-							a.Enqueue (completed);
-							return a;
-						}));
+						var completed = (CompletedProto)protoOpt.Get ();
+						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+						Debug.LogError ("Current `src` status - " + src.ToString());
+
+						if (completes.IsEmpty ()) {
+							var completedQueue = new Queue<CompletedProto> ();
+							completedQueue.Enqueue (completed);
+							return receiveHelper (src, new Some<Queue<CompletedProto>> (completedQueue));
+						} else {
+							return receiveHelper (src, completes.Map ((a) => {
+								a.Enqueue (completed);
+								return a;
+							}));
+						}
+					}
+				} else {
+					Debug.LogError ("TryGetLength before - " + src.ToString() + " BufferedLength - " + pending.ToString());
+					var lengthOpt = TryGetLength (src, new Some<BufferedLength> (pending));
+					Debug.LogError ("TryGetLength after - " + src.ToString() + " lengthOpt:Option<BufferedLength> - " + lengthOpt.ToString());
+
+					var protoOpt = lengthOpt.FlatMap<CompletedProto> ((lengthValue) => {
+						if (lengthValue.IsCompleted) {
+//						var length = lengthValue.Value ();
+							var lengthedProto = new PaddingProto (new Some<byte> (uuid), lengthOpt, new ByteBuffer (0));
+							return ReadLoad (src, lengthedProto);
+						} else {
+							tmpProto = new PaddingProto (new Some<byte> (uuid), lengthOpt, new ByteBuffer (0));
+							return NoneProto;
+						}
+					});
+
+					if (protoOpt is None<CompletedProto>) {
+						return completes;
+					} else {
+						var completed = (CompletedProto)protoOpt.Get ();
+						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+						Debug.LogError ("Current `src` status - " + src.ToString());
+
+						if (completes.IsEmpty ()) {
+							var completedQueue = new Queue<CompletedProto> ();
+							completedQueue.Enqueue (completed);
+							return receiveHelper (src, new Some<Queue<CompletedProto>> (completedQueue));
+						} else {
+							return receiveHelper (src, completes.Map ((a) => {
+								a.Enqueue (completed);
+								return a;
+							}));
+						}
 					}
 				}
 			} else { //IsCompleted Length
-				var uuid = tmpProto.uuidOpt.Get ();
-				var lengthOpt = tmpProto.lengthOpt;
-				var length = lengthOpt.Get().Value ();
-				var padding = tmpProto.loading;
-				Option<CompletedProto> protoOpt = null;
-				if(padding.Position + src.Remaining() < length){
-					tmpProto = new PaddingProto (new Some<byte>(uuid), lengthOpt, padding.Put(src));
-					protoOpt = NoneProto;
-				} else {
-					tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer (0));
-					var needLength = length - padding.Position;
-					var newAf = new byte[needLength];
-					src.Get (newAf, 0, needLength);
-
-					var completed = new CompletedProto (uuid, length, padding.Put (newAf));
-					protoOpt = new Some<CompletedProto> (completed);
-				}
-
-				if (protoOpt is None<CompletedProto>) {
-					return completes;
-				} else {
-					var completed = (CompletedProto)protoOpt.Get ();
-					if (completes.IsEmpty ()) {
-						var completedQueue = new Queue<CompletedProto> ();
-						completedQueue.Enqueue (completed);
-						return receiveHelper (src, new Some<Queue<CompletedProto>> (completedQueue));
-					} else {
-						return receiveHelper (src, completes.Map ((a) => {
-							a.Enqueue (completed);
-							return a;
-						}));
-					}
-				}
+				Debug.LogError("can't achieve ReaderDispatch else {");
+				throw new System.Exception("can't achieve ReaderDispatch else {");
+//				var uuid = tmpProto.uuidOpt.Get ();
+//				var lengthOpt = tmpProto.lengthOpt;
+//				var length = lengthOpt.Get().Value ();
+//				var padding = tmpProto.loading;
+//				Option<CompletedProto> protoOpt = null;
+//				if(padding.Position + src.Remaining() < length){
+//					tmpProto = new PaddingProto (new Some<byte>(uuid), lengthOpt, padding.Put(src));
+//					protoOpt = NoneProto;
+//				} else {
+//					tmpProto = new PaddingProto (None<byte>.Apply, None<BufferedLength>.Apply, new ByteBuffer (0));
+//					var needLength = length - padding.Position;
+//					var newAf = new byte[needLength];
+//					src.Get (newAf, 0, needLength);
+//
+//					var completed = new CompletedProto (uuid, length, padding.Put (newAf));
+//					protoOpt = new Some<CompletedProto> (completed);
+//				}
+//
+//				if (protoOpt is None<CompletedProto>) {
+//					return completes;
+//				} else {
+//					var completed = (CompletedProto)protoOpt.Get ();
+//					if (completes.IsEmpty ()) {
+//						var completedQueue = new Queue<CompletedProto> ();
+//						completedQueue.Enqueue (completed);
+//						return receiveHelper (src, new Some<Queue<CompletedProto>> (completedQueue));
+//					} else {
+//						return receiveHelper (src, completes.Map ((a) => {
+//							a.Enqueue (completed);
+//							return a;
+//						}));
+//					}
+//				}
 			}
 //			return new None<Queue<CompletedProto>> ();
 		}
 
 		private Option<byte> tryGetByte(ByteBuffer bf) {
-			if (bf.Remaining () >= 1)
+			if (bf.Remaining () >= 1) {
+//				Debug.LogWarning ("bf.Remaining () - " + bf.Remaining ());
 				return new Some<byte> (bf.Get ());
+			}
 			else 
 				return NoneByte;
 		}
@@ -234,7 +292,9 @@ namespace Lorance.RxSocket.Session{
 			} else {
 				tmpProto = new PaddingProto (NoneByte, None<BufferedLength>.Apply, new ByteBuffer(0));
 				var newAf = new byte[length];
+				Debug.LogError ("ReadLoad src.Get before - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
 				src.Get (newAf, 0, length);
+				Debug.LogError ("ReadLoad src.Get after - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
 				var completed = new CompletedProto (paddingProto.uuidOpt.Get (), length, new ByteBuffer(newAf));
 				return new Some<CompletedProto> (completed);
 			}
