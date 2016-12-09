@@ -1,18 +1,24 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Util/Promise/SheduleredPromise.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Network/Session/extend/MemoryStreamEx.cs">
     <Files>
-      <File FileName="Assets/Scripts/Network/Future.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Network/Session/ConnectedSocket.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Util/UnityVar.cs" Line="1" Column="1" />
-      <File FileName="Assets/Scripts/Util/Promise/SheduleredPromise.cs" Line="82" Column="3" />
-      <File FileName="Assets/Scripts/Util/Promise/Promise.cs" Line="667" Column="3" />
-      <File FileName="Assets/Scripts/Util/Promise/Promise_NonGeneric.cs" Line="707" Column="3" />
+      <File FileName="Assets/Scripts/Network/Session/ReaderDispatch.cs" Line="42" Column="59" />
+      <File FileName="Assets/LoginCtrl.cs" Line="45" Column="57" />
+      <File FileName="Assets/Scripts/Network/Session/extend/MemoryStreamEx.cs" Line="106" Column="11" />
+      <File FileName="Assets/Scripts/Network/Session/ConnectedSocket.cs" Line="69" Column="1" />
+      <File FileName="Assets/Scripts/Network/Session/BufferedLength.cs" Line="26" Column="3" />
+      <File FileName="Assets/Scripts/Network/Session/PaddingProto.cs" Line="9" Column="15" />
+      <File FileName="Assets/Scripts/Network/Session/Package.cs" Line="27" Column="1" />
+      <File FileName="Assets/Scripts/Util/Promise/SheduleredPromise.cs" Line="171" Column="2" />
+      <File FileName="Assets/Scripts/Network/Session/extend/StringEx.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Network/NetStart.cs" line="221" column="1" />
+      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Network/Session/BufferedLength.cs" line="32" column="1" />
+      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Network/Session/ReaderDispatch.cs" line="57" column="1" />
+      <Breakpoint file="/Users/lorancechen/version_control_project/_personal/_tankTwoDemensionPC/Assets/Scripts/Network/Session/ReaderDispatch.cs" line="102" column="14" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

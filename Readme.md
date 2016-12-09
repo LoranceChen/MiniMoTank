@@ -6,6 +6,7 @@ the responsity is clientside build with Unity3D Engine.The server side build wit
 - Unirx and RSG Promise for reactive programming style
 - Newtonsoft for json prase
 
-## Done
+## Daily Matter
 - [16-11-29] fix `SchedulerOn(Scheduler.MainThread)` not works.
 - [16-12-06] fix `SchedulerOn(Scheduler.MainThread)` not works again...
+- [16-12-09] fix `ReaderDispatch` get protocol length error
