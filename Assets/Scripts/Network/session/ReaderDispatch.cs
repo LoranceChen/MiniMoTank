@@ -211,7 +211,7 @@ namespace Lorance.RxSocket.Session{
 				var pendingLength = lengthOpt.Get ();
 				int need = 4 - pendingLength.arrivedNumber;
 				if (remaining >= need) {
-					bf.Get (pendingLength.arrived, pendingLength.arrivedNumber, remaining);
+					bf.Get (pendingLength.arrived, pendingLength.arrivedNumber, need);
 					return new Some<BufferedLength> (new BufferedLength(Common.ToInt (pendingLength.arrived)));
 				} else {
 					bf.Get (pendingLength.arrived, pendingLength.arrivedNumber, remaining);
