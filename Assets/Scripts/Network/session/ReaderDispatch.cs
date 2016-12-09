@@ -76,12 +76,12 @@ namespace Lorance.RxSocket.Session{
 				});
 
 				if (protoOpt is None<CompletedProto>) {
-					Debug.LogError ("Not completed yet - " + tmpProto);
+//					Debug.LogError ("Not completed yet - " + tmpProto);
 					return completes;
 				} else {
 					var completed = (CompletedProto)protoOpt.Get ();
-					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
-					Debug.LogError ("Current `src` status - " + src.ToString());
+//					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+//					Debug.LogError ("Current `src` status - " + src.ToString());
 
 					if (completes.IsEmpty ()) {
 						var completedQueue = new Queue<CompletedProto> ();
@@ -112,8 +112,8 @@ namespace Lorance.RxSocket.Session{
 					return completes;
 				} else {
 					var completed = (CompletedProto)protoOpt.Get ();
-					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
-					Debug.LogError ("Current `src` status - " + src.ToString());
+//					Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+//					Debug.LogError ("Current `src` status - " + src.ToString());
 
 					if (completes.IsEmpty ()) {
 						var completedQueue = new Queue<CompletedProto> ();
@@ -153,8 +153,8 @@ namespace Lorance.RxSocket.Session{
 						return completes;
 					} else {
 						var completed = (CompletedProto)protoOpt.Get ();
-						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
-						Debug.LogError ("Current `src` status - " + src.ToString());
+//						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+//						Debug.LogError ("Current `src` status - " + src.ToString());
 
 						if (completes.IsEmpty ()) {
 							var completedQueue = new Queue<CompletedProto> ();
@@ -168,9 +168,9 @@ namespace Lorance.RxSocket.Session{
 						}
 					}
 				} else {
-					Debug.LogError ("TryGetLength before - " + src.ToString() + " BufferedLength - " + pending.ToString());
+//					Debug.LogError ("TryGetLength before - " + src.ToString() + " BufferedLength - " + pending.ToString());
 					var lengthOpt = TryGetLength (src, new Some<BufferedLength> (pending));
-					Debug.LogError ("TryGetLength after - " + src.ToString() + " lengthOpt:Option<BufferedLength> - " + lengthOpt.ToString());
+//					Debug.LogError ("TryGetLength after - " + src.ToString() + " lengthOpt:Option<BufferedLength> - " + lengthOpt.ToString());
 
 					var protoOpt = lengthOpt.FlatMap<CompletedProto> ((lengthValue) => {
 						if (lengthValue.IsCompleted) {
@@ -187,8 +187,8 @@ namespace Lorance.RxSocket.Session{
 						return completes;
 					} else {
 						var completed = (CompletedProto)protoOpt.Get ();
-						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
-						Debug.LogError ("Current `src` status - " + src.ToString());
+//						Debug.LogError ("Completed Proto - " + completed.ToString() + " load to string - " + completed.loaded.Bytes.GetString());
+//						Debug.LogError ("Current `src` status - " + src.ToString());
 
 						if (completes.IsEmpty ()) {
 							var completedQueue = new Queue<CompletedProto> ();
@@ -292,9 +292,9 @@ namespace Lorance.RxSocket.Session{
 			} else {
 				tmpProto = new PaddingProto (NoneByte, None<BufferedLength>.Apply, new ByteBuffer(0));
 				var newAf = new byte[length];
-				Debug.LogError ("ReadLoad src.Get before - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
+//				Debug.LogError ("ReadLoad src.Get before - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
 				src.Get (newAf, 0, length);
-				Debug.LogError ("ReadLoad src.Get after - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
+//				Debug.LogError ("ReadLoad src.Get after - " + src.ToString() + " paddingProto - " + paddingProto.ToString());
 				var completed = new CompletedProto (paddingProto.uuidOpt.Get (), length, new ByteBuffer(newAf));
 				return new Some<CompletedProto> (completed);
 			}
