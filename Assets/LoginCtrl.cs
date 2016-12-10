@@ -41,11 +41,11 @@ public class LoginCtrl : MonoBehaviour {
 //
 		loginBtn.onClick.AddListener (() => {
 			//todo BUG: not dispatch on main sometimes
-			var begin = Time.time;
-			Debug.LogError("Begin time - " + begin);
+//			var begin = Time.time;
+//			Debug.LogError("Begin time - " + begin);
 
-			int a = 1;
-			for(var i = 0; i < 1000; i++) {
+//			int a = 1;
+//			for(var i = 0; i < 1000; i++) {
 			Login (new LoginReq (account.text, pwd.text, 1L)).SchedulerOn (Scheduler.MainThread).Done (x => {
 				Debug.LogWarning ("login req thread - " + System.Threading.Thread.CurrentThread.ManagedThreadId);
 				Package.Log ("Login response - " + x.ToString ());
@@ -57,13 +57,13 @@ public class LoginCtrl : MonoBehaviour {
 				} else {
 					rspTips.text = x.ToString ();
 				}
-					a +=1;
-					if(a ==1000) {
-						var endt = Time.time;
-						Debug.LogError("End time - " + endt + "  cost time - " + (endt - begin));
-					}
+//					a +=1;
+//					if(a ==1000) {
+//						var endt = Time.time;
+//						Debug.LogError("End time - " + endt + "  cost time - " + (endt - begin));
+//					}
 			});
-			}
+//			}
 		});
 
 		enterWorldBtn.onClick.AddListener(() => {
